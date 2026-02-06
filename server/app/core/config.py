@@ -12,4 +12,8 @@ class Settings(BaseSettings):
     PORT: int = 8000
     RELOAD: bool = True
     
-    MODEL
+    MODEL_NAME: str = "meta-llama/Llama-3.1-70B_Instruct"
+    MODEL_PATH: Path = Path("./models/downloaded")
+    CACHE_DIR: Path = Path("./models/cache")
+    MAX_TOKENS: int = 4096
+    TEMPARATURE: float = 0.7
