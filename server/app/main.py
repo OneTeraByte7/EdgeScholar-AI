@@ -1,0 +1,124 @@
+from pathlib import Path
+import sys
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import logging
+import time
+from contextlib import asynccontextmanager
+
+# Ensure the parent directory is on sys.path so `app` can be imported when running main.py directly.
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from app.core.config import settings
+from app.api.routes import upload, chat, search
+from app.services.llm_service import llm_service
+
+# Configure logging
+logging.basicConfig(
+    level=settings.LOG_LEVEL,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Startup/shutdown lifecycle
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifecycle"""
+    logger.info("🚀 Starting PrivateScholar AI...")
+    
+    # Load model on startup
+    try:
+        await llm_service.load_model()
+        logger.info("✅ LLM model loaded successfully")
+    except Exception as e:
+        logger.error(f"❌ Failed to load model: {e}")
+        logger.warning("⚠️  Starting without LLM - chat functionality will be limited")
+    
+    yield
+    
+    # Cleanup on shutdown
+    logger.info("🛑 Shutting down PrivateScholar AI...")
+    llm_service.unload_model()
+
+
+# Create FastAPI app
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    description="Privacy-first, on-device research assistant powered by AMD",
+    lifespan=lifespan
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(upload.router, prefix="/api")
+app.include_router(chat.router, prefix="/api")
+app.include_router(search.router, prefix="/api")
+
+
+# Root endpoint
+@app.get("/")
+async def root():
+    """API root endpoint"""
+    return {
+        "app": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "status": "running",
+        "message": "Welcome to PrivateScholar AI - Your research. Your device. Your privacy.",
+        "docs": "/docs",
+        "powered_by": "AMD + AirLLM"
+    }
+
+
+# Health check
+@app.get("/health")
+async def health():
+    """System health check"""
+    import torch
+    
+    return {
+        "status": "healthy",
+        "model_loaded": llm_service.model is not None,
+        "gpu_available": torch.cuda.is_available(),
+        "timestamp": time.time()
+    }
+
+
+# Error handlers
+@app.exception_handler(404)
+async def not_found_handler(request, exc):
+    return JSONResponse(
+        status_code=404,
+        content={"error": "Endpoint not found", "path": str(request.url)}
+    )
+
+
+@app.exception_handler(500)
+async def internal_error_handler(request, exc):
+    logger.error(f"Internal error: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error", "detail": str(exc)}
+    )
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.RELOAD
+    )
