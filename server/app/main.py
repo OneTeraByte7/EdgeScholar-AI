@@ -92,10 +92,16 @@ async def health():
     """System health check"""
     import torch
     
+    try:
+        gpu_available = torch.cuda.is_available()
+    except Exception:
+        gpu_available = False
+    
     return {
         "status": "healthy",
         "model_loaded": llm_service.model is not None,
-        "gpu_available": torch.cuda.is_available(),
+        "device": llm_service.device,
+        "gpu_available": gpu_available,
         "timestamp": time.time()
     }
 
