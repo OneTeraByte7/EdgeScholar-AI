@@ -21,6 +21,9 @@ os.environ.setdefault("HF_DATASETS_CACHE", str(CACHE_ROOT / "datasets"))
 os.environ.setdefault("TORCH_HOME", str(CACHE_ROOT / "torch"))
 os.environ.setdefault("XDG_CACHE_HOME", str(CACHE_ROOT))
 os.environ.setdefault("TMPDIR", str(TMP_ROOT))
+# Disable symlinks on Windows to avoid permission issues
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS", "1")
 
 class Settings(BaseSettings):
     APP_NAME: str = "EdgeScholar AI"
@@ -32,14 +35,15 @@ class Settings(BaseSettings):
     PORT: int = 8000
     RELOAD: bool = True
     
-    # Use Mistral-7B by default (you confirmed access); smaller than Llama-70B
-    MODEL_NAME: str = "mistralai/Mistral-7B-Instruct-v0.3"
+    # Use smaller model that fits in limited disk space
+    # Phi-2 is 2.7B params, ~5GB download, great for CPU
+    MODEL_NAME: str = "microsoft/phi-2"
     MODEL_PATH: Path = PROJECT_ROOT / "server" / "app" / "models" / "downloaded"
     CACHE_DIR: Path = PROJECT_ROOT / "server" / "app" / "models" / "cache"
     MAX_TOKENS: int = 4096
     TEMPERATURE: float = 0.7
     
-    USE_GPU: bool = True
+    USE_GPU: bool = False
     GPU_DEVICE: int = 0
     
     CHROMA_PERSIST_DIR: Path = PROJECT_ROOT / "server" / "app" / "data" / "embeddings"
@@ -57,7 +61,7 @@ class Settings(BaseSettings):
     
     SECRET_KEY: str = "dev-secret-key-change-in-production"
     # Hugging Face token (set via env or server/.env). Keep empty by default.
-    HUGGINGFACE_HUB_TOKEN: str = ""
+    HUGGINGFACE_HUB_TOKEN: str = "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"
     # Keep raw string for env parsing; will convert to list after instantiation
     CORS_ORIGINS_RAW: str = "http://localhost:3000,http://localhost:5173"
     
