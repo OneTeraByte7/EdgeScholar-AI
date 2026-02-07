@@ -1,6 +1,26 @@
+import os
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from typing import List
 from pathlib import Path
+
+# Ensure caches and model downloads go into the repository workspace instead of C: drive
+# Project root: f:/AMD/EdgeScholarAI
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+CACHE_ROOT = PROJECT_ROOT / ".cache"
+TMP_ROOT = PROJECT_ROOT / "tmp"
+
+# Create cache/tmp directories early
+for d in (CACHE_ROOT, TMP_ROOT):
+    d.mkdir(parents=True, exist_ok=True)
+
+# Redirect common ML lib caches into the project cache directory
+os.environ.setdefault("TRANSFORMERS_CACHE", str(CACHE_ROOT / "transformers"))
+os.environ.setdefault("HF_HOME", str(CACHE_ROOT / "huggingface"))
+os.environ.setdefault("HF_DATASETS_CACHE", str(CACHE_ROOT / "datasets"))
+os.environ.setdefault("TORCH_HOME", str(CACHE_ROOT / "torch"))
+os.environ.setdefault("XDG_CACHE_HOME", str(CACHE_ROOT))
+os.environ.setdefault("TMPDIR", str(TMP_ROOT))
 
 class Settings(BaseSettings):
     APP_NAME: str = "EdgeScholar AI"
@@ -12,36 +32,69 @@ class Settings(BaseSettings):
     PORT: int = 8000
     RELOAD: bool = True
     
-    MODEL_NAME: str = "meta-llama/Llama-3.1-70B_Instruct"
-    MODEL_PATH: Path = Path("./models/downloaded")
-    CACHE_DIR: Path = Path("./models/cache")
+    # Use Mistral-7B by default (you confirmed access); smaller than Llama-70B
+    MODEL_NAME: str = "mistralai/Mistral-7B-Instruct-v0.3"
+    MODEL_PATH: Path = PROJECT_ROOT / "server" / "app" / "models" / "downloaded"
+    CACHE_DIR: Path = PROJECT_ROOT / "server" / "app" / "models" / "cache"
     MAX_TOKENS: int = 4096
-    TEMPARATURE: float = 0.7
+    TEMPERATURE: float = 0.7
     
     USE_GPU: bool = True
     GPU_DEVICE: int = 0
     
-    CHROMA_PERSIST_DIR: Path = Path("./data/embeddings")
+    CHROMA_PERSIST_DIR: Path = PROJECT_ROOT / "server" / "app" / "data" / "embeddings"
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
     CHUNK_SIZE: int = 512
     CHUNK_OVERLAP: int = 50
     
-    UPLOAD_DIR: Path = Path("./data/uploads")
+    UPLOAD_DIR: Path = PROJECT_ROOT / "server" / "app" / "data" / "uploads"
     MAX_UPLOAD_SIZE: int = 52428800
-    ALLOWED_EXTENSIONS: List[str] = [".pdf", ".docx"," .txt"]
+    # Keep raw string in env to avoid pydantic JSON decoding errors; will parse below
+    ALLOWED_EXTENSIONS_RAW: str = ".pdf,.docx,.txt"
     
-    CITATION_DIR: Path = Path("./data/citations")
+    CITATION_DIR: Path = PROJECT_ROOT / "server" / "app" / "data" / "citations"
     DEFAULT_CITATION_STYLE: str = "IEEE"
     
     SECRET_KEY: str = "dev-secret-key-change-in-production"
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    # Hugging Face token (set via env or server/.env). Keep empty by default.
+    HUGGINGFACE_HUB_TOKEN: str = ""
+    # Keep raw string for env parsing; will convert to list after instantiation
+    CORS_ORIGINS_RAW: str = "http://localhost:3000,http://localhost:5173"
     
     LOG_LEVEL: str = "INFO"
-    LOG_FILE: Path = Path("./logs/app.log")
+    LOG_FILE: Path = PROJECT_ROOT / "server" / "app" / "logs" / "app.log"
     
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"
+
+    # Note: ALLOWED_EXTENSIONS parsing is done after instantiation to avoid
+    # DotEnvSettingsSource attempting to json.loads the value for List fields.
         
         
 settings = Settings()
+
+# Parse allowed extensions from raw env value into a list and set on the settings
+raw_ext = getattr(settings, "ALLOWED_EXTENSIONS_RAW", "") or ""
+parsed_ext = [e.strip() for e in raw_ext.split(",") if e.strip()]
+setattr(settings, "ALLOWED_EXTENSIONS", parsed_ext)
+
+# Parse CORS origins from raw env value into a list and set on the settings
+raw_cors = getattr(settings, "CORS_ORIGINS_RAW", "") or ""
+parsed_cors = [e.strip() for e in raw_cors.split(",") if e.strip()]
+setattr(settings, "CORS_ORIGINS", parsed_cors)
+
+# Ensure important app directories exist (respect .env overrides)
+for d in (
+    settings.CACHE_DIR,
+    settings.MODEL_PATH,
+    settings.CHROMA_PERSIST_DIR,
+    settings.UPLOAD_DIR,
+    settings.CITATION_DIR,
+    settings.LOG_FILE.parent,
+):
+    try:
+        Path(d).mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass

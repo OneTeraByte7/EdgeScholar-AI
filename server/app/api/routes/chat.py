@@ -61,14 +61,13 @@ Answer:"""
         if request.stream:
             # Return streaming response
             async def generate_stream():
-                async for chunk in llm_service.generate(
+                async for chunk in llm_service.generate_stream(
                     prompt=prompt,
                     max_tokens=request.max_tokens,
                     temperature=request.temperature,
-                    stream=True
                 ):
                     yield chunk
-            
+
             return StreamingResponse(
                 generate_stream(),
                 media_type="text/plain"
@@ -79,7 +78,6 @@ Answer:"""
                 prompt=prompt,
                 max_tokens=request.max_tokens,
                 temperature=request.temperature,
-                stream=False
             )
             
             processing_time = time.time() - start_time

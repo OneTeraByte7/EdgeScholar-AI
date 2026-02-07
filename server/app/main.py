@@ -8,10 +8,14 @@ import logging
 import time
 from contextlib import asynccontextmanager
 
-# Ensure the parent directory is on sys.path so `app` can be imported when running main.py directly.
-ROOT_DIR = Path(__file__).resolve().parent.parent
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+# Ensure the project root and server directory are on sys.path so local stubs
+# (like `optimum` placed at the repo root) and `app` modules can be imported
+# regardless of the current working directory used to start the app.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SERVER_DIR = Path(__file__).resolve().parent.parent
+for p in (str(PROJECT_ROOT), str(SERVER_DIR)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from app.core.config import settings
 from app.api.routes import upload, chat, search
@@ -117,7 +121,7 @@ async def internal_error_handler(request, exc):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "main:app",
+        "app.main:app",
         host=settings.HOST,
         port=settings.PORT,
         reload=settings.RELOAD

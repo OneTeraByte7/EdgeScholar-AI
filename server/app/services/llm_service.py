@@ -25,12 +25,17 @@ class AirLLMService:
             logger.info(f"Loading model: {settings.MODEL_NAME}")
             
             # AirLLM automatically handles layer-wise loading for large models
+            # Pass token if provided for gated/private repos
+            hf_kwargs = {}
+            if getattr(settings, "HUGGINGFACE_HUB_TOKEN", ""):
+                hf_kwargs["token"] = settings.HUGGINGFACE_HUB_TOKEN
+
+            # AirLLM's AutoModel may not accept HF-specific kwargs like
+            # `device_map`/`torch_dtype`/`low_cpu_mem_usage`. Call with
+            # minimal args and let AirLLM handle device placement.
             self.model = AutoModel.from_pretrained(
                 settings.MODEL_NAME,
-                cache_dir=str(settings.CACHE_DIR),
-                device_map="auto" if settings.USE_GPU else "cpu",
-                torch_dtype=torch.float16,
-                low_cpu_mem_usage=True
+                **hf_kwargs,
             )
             
             logger.info("Model loaded successfully!")
@@ -44,40 +49,52 @@ class AirLLMService:
         prompt: str,
         max_tokens: int = None,
         temperature: float = None,
-        stream: bool = False
-    ) -> AsyncGenerator[str, None] | str:
-        """Generate text from the model"""
-        
+    ) -> str:
+        """Standard (non-streaming) generation returning full response string."""
+
         if self.model is None:
             await self.load_model()
-        
+
         max_tokens = max_tokens or settings.MAX_TOKENS
         temperature = temperature or settings.TEMPERATURE
-        
+
         try:
             # Prepare input
             inputs = self.model.tokenizer(prompt, return_tensors="pt")
-            
-            if stream:
-                # Streaming generation
-                async for token in self._generate_stream(inputs, max_tokens, temperature):
-                    yield token
-            else:
-                # Standard generation
-                outputs = self.model.generate(
-                    **inputs,
-                    max_new_tokens=max_tokens,
-                    temperature=temperature,
-                    do_sample=True,
-                    pad_token_id=self.model.tokenizer.eos_token_id
-                )
-                
-                response = self.model.tokenizer.decode(outputs[0], skip_special_tokens=True)
-                return response
-                
+
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=max_tokens,
+                temperature=temperature,
+                do_sample=True,
+                pad_token_id=self.model.tokenizer.eos_token_id,
+            )
+
+            response = self.model.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            return response
+
         except Exception as e:
             logger.error(f"Generation failed: {e}")
             raise
+
+    async def generate_stream(
+        self,
+        prompt: str,
+        max_tokens: int = None,
+        temperature: float = None,
+    ) -> AsyncGenerator[str, None]:
+        """Async generator for streaming generation (yields chunks)."""
+        if self.model is None:
+            await self.load_model()
+
+        max_tokens = max_tokens or settings.MAX_TOKENS
+        temperature = temperature or settings.TEMPERATURE
+
+        # Prepare input
+        inputs = self.model.tokenizer(prompt, return_tensors="pt")
+
+        async for chunk in self._generate_stream(inputs, max_tokens, temperature):
+            yield chunk
     
     async def _generate_stream(self, inputs, max_tokens, temperature):
         """Internal method for streaming generation"""
