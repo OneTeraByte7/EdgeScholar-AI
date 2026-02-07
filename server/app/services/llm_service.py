@@ -11,10 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 class AirLLMService:
-    """Service for managing AirLLM model inference with AMD GPU support"""
+    """Service for managing LLM inference with CPU support"""
     
     def __init__(self):
-        self.model: Optional[AutoModel] = None
+        self.model: Optional[any] = None
+        self.tokenizer: Optional[any] = None
         # Check if CUDA/ROCm is actually available
         try:
             cuda_available = torch.cuda.is_available()
@@ -22,13 +23,25 @@ class AirLLMService:
             cuda_available = False
         
         self.device = "cuda" if settings.USE_GPU and cuda_available else "cpu"
-        logger.info(f"Initializing AirLLM on device: {self.device}")
+        logger.info(f"Initializing LLM service on device: {self.device}")
         
         if settings.USE_GPU and not cuda_available:
             logger.warning("GPU requested but not available. Using CPU mode.")
+        
+        # Determine if we should use AirLLM or standard transformers
+        # AirLLM is for very large models (7B+), transformers for smaller ones
+        self.use_airllm = self._should_use_airllm()
+        logger.info(f"Using {'AirLLM' if self.use_airllm else 'Transformers'} for model loading")
+    
+    def _should_use_airllm(self) -> bool:
+        """Determine if we should use AirLLM based on model name"""
+        model_name_lower = settings.MODEL_NAME.lower()
+        # Use standard transformers for smaller models
+        small_models = ['tinyllama', 'phi-2', 'gpt2', 'distilgpt2']
+        return not any(sm in model_name_lower for sm in small_models)
     
     async def load_model(self):
-        """Load the LLM model using AirLLM's layer-wise loading"""
+        """Load the LLM model using appropriate method"""
         if self.model is not None:
             logger.info("Model already loaded")
             return
@@ -36,10 +49,7 @@ class AirLLMService:
         try:
             logger.info(f"Loading model: {settings.MODEL_NAME}")
 
-            # AirLLM automatically handles layer-wise loading for large models.
-            # If a HF token is provided, set it in the environment so the
-            # underlying HF APIs can use it. Do NOT pass `token` directly to
-            # AirLLM's constructor (it doesn't accept that kwarg).
+            # Set environment variables
             if getattr(settings, "HUGGINGFACE_HUB_TOKEN", ""):
                 os.environ.setdefault("HUGGINGFACE_HUB_TOKEN", settings.HUGGINGFACE_HUB_TOKEN)
             
@@ -47,32 +57,77 @@ class AirLLMService:
             os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
             os.environ["HF_HUB_DISABLE_SYMLINKS"] = "1"
 
-            # Set HF_HOME for cache to avoid tokenizer issues
+            # Set HF_HOME for cache
             if "HF_HOME" not in os.environ:
                 cache_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", ".cache", "huggingface")
                 os.environ["HF_HOME"] = cache_dir
                 logger.info(f"Set HF_HOME to: {cache_dir}")
             
-            # Call AirLLM loader - it handles layer-wise loading automatically
-            # Try with compression first (needs bitsandbytes), fall back to no compression
-            try:
-                if self.device == 'cpu':
-                    logger.info("Attempting to load with 4-bit compression for CPU mode")
-                    self.model = AutoModel.from_pretrained(
-                        settings.MODEL_NAME,
-                        compression='4bit'
-                    )
-                else:
-                    self.model = AutoModel.from_pretrained(settings.MODEL_NAME)
-            except Exception as compression_err:
-                if 'bitsandbytes' in str(compression_err).lower() or 'compression' in str(compression_err).lower():
-                    logger.warning(f"Compression not available: {compression_err}")
-                    logger.info("Loading model without compression (will use more memory)")
-                    self.model = AutoModel.from_pretrained(settings.MODEL_NAME)
-                else:
-                    raise
+            if self.use_airllm:
+                await self._load_with_airllm()
+            else:
+                await self._load_with_transformers()
 
-            logger.info("Model loaded successfully!")
+            logger.info("✅ Model loaded successfully!")
+
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            raise
+    
+    async def _load_with_transformers(self):
+        """Load model using standard transformers library"""
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        
+        logger.info("Loading with standard Transformers library")
+        
+        # Load tokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            settings.MODEL_NAME,
+            trust_remote_code=True
+        )
+        
+        # Load model
+        self.model = AutoModelForCausalLM.from_pretrained(
+            settings.MODEL_NAME,
+            torch_dtype=torch.float32,  # Use float32 for CPU
+            device_map=None,
+            trust_remote_code=True,
+            low_cpu_mem_usage=True
+        )
+        
+        # Move to CPU explicitly
+        self.model = self.model.to(self.device)
+        self.model.eval()
+        
+        logger.info(f"Model loaded on {self.device}")
+    
+    async def _load_with_airllm(self):
+        """Load model using AirLLM for large models"""
+        logger.info("Loading with AirLLM for layer-wise loading")
+        
+        # Force CPU mode for PyTorch if GPU is not available
+        if self.device == 'cpu':
+            torch.cuda.is_available = lambda: False
+            logger.info("Forcing CPU mode for model loading")
+        
+        # Try with compression first, fall back to no compression
+        try:
+            if self.device == 'cpu':
+                logger.info("Attempting to load with 4-bit compression")
+                self.model = AutoModel.from_pretrained(
+                    settings.MODEL_NAME,
+                    compression='4bit'
+                )
+            else:
+                self.model = AutoModel.from_pretrained(settings.MODEL_NAME)
+        except Exception as compression_err:
+            err_msg = str(compression_err).lower()
+            if 'bitsandbytes' in err_msg or 'compression' in err_msg or 'cuda' in err_msg:
+                logger.warning(f"Compression/CUDA issue: {compression_err}")
+                logger.info("Loading model without compression")
+                self.model = AutoModel.from_pretrained(settings.MODEL_NAME)
+            else:
+                raise
 
         except Exception as e:
             err_str = str(e)
@@ -164,18 +219,32 @@ class AirLLMService:
         temperature = temperature or settings.TEMPERATURE
 
         try:
-            # Prepare input
-            inputs = self.model.tokenizer(prompt, return_tensors="pt")
-
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=max_tokens,
-                temperature=temperature,
-                do_sample=True,
-                pad_token_id=self.model.tokenizer.eos_token_id,
-            )
-
-            response = self.model.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            if self.use_airllm:
+                # AirLLM method
+                inputs = self.model.tokenizer(prompt, return_tensors="pt")
+                outputs = self.model.generate(
+                    **inputs,
+                    max_new_tokens=max_tokens,
+                    temperature=temperature,
+                    do_sample=True,
+                    pad_token_id=self.model.tokenizer.eos_token_id,
+                )
+                response = self.model.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            else:
+                # Standard transformers method
+                inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+                
+                with torch.no_grad():
+                    outputs = self.model.generate(
+                        **inputs,
+                        max_new_tokens=max_tokens,
+                        temperature=temperature,
+                        do_sample=True,
+                        pad_token_id=self.tokenizer.eos_token_id,
+                    )
+                
+                response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            
             return response
 
         except Exception as e:
