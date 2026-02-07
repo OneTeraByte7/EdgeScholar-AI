@@ -12,6 +12,7 @@ sentence-transformers==2.3.1
 chromadb==0.4.22
 numpy<2
 optimum[bettertransformer]
+bitsandbytes>=0.41.0  # For 4-bit compression (optional but recommended)
 
 # Document Processing
 PyMuPDF==1.23.21
