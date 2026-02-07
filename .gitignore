@@ -37,3 +37,8 @@ htmlcov/
 
 # Misc
 *.db
+
+/server/.env
+/server/models
+*.env
+/.cache
