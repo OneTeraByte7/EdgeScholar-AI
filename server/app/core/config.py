@@ -35,9 +35,9 @@ class Settings(BaseSettings):
     PORT: int = 8000
     RELOAD: bool = True
     
-    # Use smaller model that fits in limited disk space
-    # Phi-2 is 2.7B params, ~5GB download, great for CPU
-    MODEL_NAME: str = "microsoft/phi-2"
+    # Use TinyLlama - small, fast, fully compatible with AirLLM
+    # Only ~2GB download, 1.1B params, perfect for CPU and limited disk space
+    MODEL_NAME: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
     MODEL_PATH: Path = PROJECT_ROOT / "server" / "app" / "models" / "downloaded"
     CACHE_DIR: Path = PROJECT_ROOT / "server" / "app" / "models" / "cache"
     MAX_TOKENS: int = 4096
