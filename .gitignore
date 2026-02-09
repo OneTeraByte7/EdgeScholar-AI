@@ -42,3 +42,4 @@ htmlcov/
 /server/models
 *.env
 /.cache
+/server/data
