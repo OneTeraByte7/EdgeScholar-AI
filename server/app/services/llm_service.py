@@ -1,7 +1,6 @@
 import logging
 import os
 from typing import Optional, AsyncGenerator
-from airllm import AutoModel
 import torch
 from app.core.config import settings
 import json
@@ -104,6 +103,16 @@ class AirLLMService:
     async def _load_with_airllm(self):
         """Load model using AirLLM for large models"""
         logger.info("Loading with AirLLM for layer-wise loading")
+        # Import AirLLM lazily to avoid top-level import errors when the
+        # package or its optional dependencies (e.g. transformers.quantizers)
+        # are not available in the environment. Importing here allows the
+        # application to start and gracefully fall back to the standard
+        # transformers loader when AirLLM cannot be imported.
+        try:
+            from airllm import AutoModel
+        except Exception as ie:
+            logger.error(f"AirLLM import failed: {ie}")
+            raise
         
         # Force CPU mode for PyTorch if GPU is not available
         if self.device == 'cpu':
