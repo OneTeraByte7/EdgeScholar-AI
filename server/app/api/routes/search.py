@@ -21,10 +21,20 @@ async def semantic_search(request: SearchRequest):
         # Format results
         formatted_results = []
         for i in range(len(results["documents"])):
+            # Convert distance to a similarity score in (0,1]:
+            # similarity = 1 / (1 + distance)
+            try:
+                dist = float(results.get("distances", [0])[i])
+            except Exception:
+                dist = 0.0
+            similarity = 1.0 / (1.0 + max(dist, 0.0))
+            # Clamp to [0.0, 1.0]
+            similarity = max(0.0, min(1.0, similarity))
+
             formatted_results.append({
                 "text": results["documents"][i],
                 "metadata": results["metadatas"][i],
-                "relevance_score": 1 - results["distances"][i],  # Convert distance to similarity
+                "relevance_score": similarity,
                 "chunk_id": results["ids"][i]
             })
         
