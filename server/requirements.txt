@@ -4,15 +4,22 @@ uvicorn[standard]==0.27.0
 python-multipart==0.0.6
 websockets==12.0
 
-# AI & ML
-airllm==2.8.3
+# AI & ML - Multi-backend support
 torch==2.1.2
 transformers==4.37.2
 sentence-transformers==2.3.1
 chromadb==0.4.22
 numpy<2
 optimum[bettertransformer]
-bitsandbytes>=0.41.0  # For 4-bit compression (optional but recommended)
+accelerate==0.27.2  # For model loading optimization
+psutil>=5.9.0  # Hardware detection
+
+# Model backends (install based on your needs)
+airllm==2.8.3  # For large models with layer-wise loading
+llama-cpp-python==0.2.56  # For GGUF quantized models (best for CPU)
+bitsandbytes>=0.41.0  # For 4-bit/8-bit quantization
+# vllm  # Uncomment for production GPU inference (requires CUDA 11+)
+huggingface-hub>=0.20.0  # For model downloads
 
 # Document Processing
 PyMuPDF==1.23.21
