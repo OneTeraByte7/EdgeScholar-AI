@@ -2,11 +2,21 @@
 
 ---
 
-# PrivateScholar AI
+# EdgeScholar AI (formerly PrivateScholar AI)
 
 **Your Research. Your Device. Your Privacy. Powered by AMD.**
 
-Privacy-first, on-device research assistant that runs powerful 70B+ parameter LLMs entirely on consumer hardware using AirLLM and AMD GPU optimization.
+Privacy-first, on-device research assistant with **multi-backend AI inference** supporting models from 1B to 70B+ parameters on consumer hardware.
+
+## 🚀 **NEW: Advanced Model Infrastructure**
+
+✅ **Multi-Backend Support**: Auto-selects optimal backend (Transformers, AirLLM, llama.cpp, vLLM)  
+✅ **Upgraded Model**: Phi-3-mini-4k (3.8B) - GPT-3.5 quality in just 2.3GB  
+✅ **Real Token Streaming**: True token-by-token generation  
+✅ **Auto Hardware Detection**: Optimizes for your CPU/GPU/RAM  
+✅ **4-bit Quantization**: Run bigger models with less memory  
+
+**[📖 Quick Start Guide](QUICKSTART.md)** | **[🔧 Configuration Guide](server/MODEL_CONFIGURATION.md)** | **[📝 Upgrade Summary](UPGRADE_SUMMARY.md)**
 
 ## 🎯 Problem
 
@@ -18,9 +28,11 @@ Researchers need AI assistance but can't use cloud services due to:
 
 ## 💡 Solution
 
-PrivateScholar AI runs GPT-4 class models (Llama-3-70B) **100% on your device** using:
-- **AirLLM**: Layer-wise model loading for 16GB RAM laptops
-- **AMD ROCm**: GPU acceleration for fast inference
+EdgeScholar AI runs GPT-3.5 to GPT-4 class models **100% on your device** using:
+- **Smart Backend Selection**: Automatically chooses Transformers, AirLLM, GGUF, or vLLM
+- **Hardware Auto-Detection**: Optimizes for your specific CPU/GPU/RAM configuration
+- **4-bit Quantization**: Run 7B models in ~4GB RAM
+- **AMD ROCm Support**: GPU acceleration for AMD hardware
 - **Local Vector DB**: All your research data stays private
 
 ## ✨ Features
@@ -47,6 +59,30 @@ PrivateScholar AI runs GPT-4 class models (Llama-3-70B) **100% on your device** 
 - Data never leaves your device
 - HIPAA/GDPR compliant by design
 
+## 🤖 Model Options
+
+EdgeScholar AI supports multiple model backends with auto-optimization:
+
+### Recommended Models
+
+| Model | Size | Quality | Best For |
+|-------|------|---------|----------|
+| **Phi-3-mini** (Default) | 2.3GB | ⭐⭐⭐⭐ | Best balance |
+| Mistral-7B | 4GB | ⭐⭐⭐⭐⭐ | High quality |
+| Llama-3-8B | 4.5GB | ⭐⭐⭐⭐⭐ | Reasoning tasks |
+| TinyLlama | 1GB | ⭐⭐ | Minimal size |
+
+### Supported Backends
+
+- **Transformers**: Standard HuggingFace models (default)
+- **AirLLM**: Layer-wise loading for large models on limited RAM
+- **llama.cpp (GGUF)**: Fastest CPU inference with quantized models
+- **vLLM**: Production GPU inference (optional, requires CUDA 11.8+)
+
+**Auto-detection**: The system automatically selects the best backend and quantization based on your hardware.
+
+See [Model Configuration Guide](server/MODEL_CONFIGURATION.md) for details.
+
 ## 🏗️ Architecture
 
 ```
@@ -62,11 +98,14 @@ PrivateScholar AI runs GPT-4 class models (Llama-3-70B) **100% on your device** 
 │  - Search API   - RAG Pipeline              │
 └─────┬───────────────────┬───────────────────┘
       │                   │
-┌─────▼──────┐    ┌──────▼──────────┐
-│  AirLLM    │    │   ChromaDB      │
-│  (70B LLM) │    │  (Vector DB)    │
-│  + AMD GPU │    │  + Embeddings   │
-└────────────┘    └─────────────────┘
+┌─────▼──────────────┐    ┌──────▼──────────┐
+│  Multi-Backend AI  │    │   ChromaDB      │
+│  • Transformers    │    │  (Vector DB)    │
+│  • AirLLM         │    │  + Embeddings   │
+│  • llama.cpp      │    │  + Local Store  │
+│  • vLLM (optional)│    └─────────────────┘
+│  + Auto-Optimize   │
+└────────────────────┘
 ```
 
 ## 🚀 Quick Start
@@ -74,17 +113,89 @@ PrivateScholar AI runs GPT-4 class models (Llama-3-70B) **100% on your device** 
 ### Prerequisites
 
 - Python 3.10+
-- AMD GPU with ROCm support (or CPU fallback)
-- 16GB+ RAM (32GB recommended for 70B models)
-- 50GB+ free disk space (for model storage)
+- 8GB+ RAM (16GB recommended)
+- 5-10GB free disk space (for model)
+- Optional: NVIDIA/AMD GPU for acceleration
 
-### Backend Setup
+### Installation & Test
 
 ```bash
-cd backend
+# Clone repository
+git clone <repo-url>
+cd EdgeScholarAI
 
-# Run the setup script
-./start.sh
+# Install dependencies
+cd server
+pip install -r requirements.txt
+
+# Test the setup (auto-detects hardware)
+cd ..
+python test_model_loader.py
+```
+
+This will:
+1. Detect your hardware capabilities
+2. Download optimal model (~2-5GB, one-time)
+3. Test generation and streaming
+4. Show you the selected backend
+
+### Start the Server
+
+```bash
+cd server
+uvicorn app.main:app --reload
+```
+
+The API will be available at `http://localhost:8000`
+
+### Configuration (Optional)
+
+Edit `server/.env` to choose your model:
+
+```bash
+# Auto-optimized (recommended)
+MODEL_NAME=microsoft/Phi-3-mini-4k-instruct
+MODEL_TYPE=auto           # Auto-select backend
+QUANTIZATION=auto         # Auto-select quantization
+
+# Or manually configure:
+# MODEL_TYPE=gguf         # For fastest CPU
+# MODEL_TYPE=vllm         # For production GPU
+# QUANTIZATION=4bit       # For less memory
+```
+
+See [Quick Start Guide](QUICKSTART.md) for detailed instructions.
+
+## 📚 Documentation
+
+- **[QUICKSTART.md](QUICKSTART.md)**: Get started in 5 minutes
+- **[UPGRADE_SUMMARY.md](UPGRADE_SUMMARY.md)**: What's new and improved
+- **[MODEL_CONFIGURATION.md](server/MODEL_CONFIGURATION.md)**: Detailed model guide
+- **[test_model_loader.py](test_model_loader.py)**: Hardware test script
+
+## 🔧 Advanced Configuration
+
+### For CPU-Only Systems
+```bash
+MODEL_NAME=TheBloke/Phi-3-mini-4k-instruct-GGUF
+MODEL_TYPE=gguf
+QUANTIZATION=4bit
+```
+
+### For GPU Systems
+```bash
+MODEL_NAME=microsoft/Phi-3-mini-4k-instruct
+MODEL_TYPE=vllm
+USE_GPU=True
+# Requires: pip install vllm
+```
+
+### For Large Models (7B+)
+```bash
+MODEL_NAME=mistralai/Mistral-7B-Instruct-v0.2
+MODEL_TYPE=airllm
+QUANTIZATION=4bit
+```
 
 # Or manually:
 python3 -m venv venv
