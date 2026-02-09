@@ -35,13 +35,15 @@ class Settings(BaseSettings):
     PORT: int = 8000
     RELOAD: bool = True
     
-    # Use TinyLlama - small, fast, fully compatible with AirLLM
-    # Only ~2GB download, 1.1B params, perfect for CPU and limited disk space
-    MODEL_NAME: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    # Model Configuration - Supports multiple model types
+    # Phi-3-mini: 3.8B params, ~8GB (4GB with 4-bit), GPT-3.5 quality
+    MODEL_NAME: str = "microsoft/Phi-3-mini-4k-instruct"
+    MODEL_TYPE: str = "auto"  # auto, airllm, gguf, transformers
     MODEL_PATH: Path = PROJECT_ROOT / "server" / "app" / "models" / "downloaded"
     CACHE_DIR: Path = PROJECT_ROOT / "server" / "app" / "models" / "cache"
     MAX_TOKENS: int = 4096
     TEMPERATURE: float = 0.7
+    QUANTIZATION: str = "auto"  # none, 4bit, 8bit, auto
     
     USE_GPU: bool = False
     GPU_DEVICE: int = 0
