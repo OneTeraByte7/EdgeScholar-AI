@@ -54,12 +54,10 @@ class HardwareDetector:
             if info["available_ram_gb"] < 8:
                 info["recommended_backend"] = "gguf"
                 info["recommended_quantization"] = "4bit"
-            elif info["available_ram_gb"] < 16:
-                info["recommended_backend"] = "airllm"
-                info["recommended_quantization"] = "4bit"
             else:
+                # For CPU: Use transformers without quantization (quantization causes segfaults)
                 info["recommended_backend"] = "transformers"
-                info["recommended_quantization"] = "8bit"
+                info["recommended_quantization"] = "none"
         
         logger.info(f"Hardware detected: {info}")
         return info
@@ -243,23 +241,25 @@ class ModelLoader:
             "attn_implementation": "eager"  # Use eager attention to avoid flash-attention issues
         }
         
-        # Add quantization config
-        if quantization == "4bit":
-            kwargs["quantization_config"] = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4"
-            )
-        elif quantization == "8bit":
-            kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
-        else:
-            kwargs["torch_dtype"] = torch.float16 if self.hardware["cuda_available"] else torch.float32
-        
-        # Set device map
+        # CRITICAL: BitsAndBytes quantization causes segfaults on CPU
+        # Only use quantization on CUDA/GPU
         if self.hardware["cuda_available"]:
+            # Add quantization config for GPU only
+            if quantization == "4bit":
+                kwargs["quantization_config"] = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4"
+                )
+            elif quantization == "8bit":
+                kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
             kwargs["device_map"] = "auto"
         else:
+            # CPU mode: use float32 without quantization to avoid segfaults
+            logger.warning("CPU mode: Disabling BitsAndBytes quantization to prevent segmentation faults")
+            logger.warning("Model will use ~7-8GB RAM. If you have limited RAM, consider using GGUF models instead.")
+            kwargs["dtype"] = torch.float32  # Use 'dtype' instead of deprecated 'torch_dtype'
             kwargs["device_map"] = None
         
         self.model = AutoModelForCausalLM.from_pretrained(**kwargs)
@@ -270,6 +270,7 @@ class ModelLoader:
         
         self.model.eval()
         logger.info(f"Transformers model loaded on {self.model.device}")
+        logger.info(f"Model memory footprint: ~{self.model.get_memory_footprint() / 1e9:.2f} GB")
     
     def _download_gguf_model(self) -> str:
         """Download GGUF model from HuggingFace"""
@@ -449,20 +450,61 @@ class ModelLoader:
         # Get the number of input tokens to skip them in the output
         input_length = inputs['input_ids'].shape[1]
         
+        logger.info(f"Generating with prompt length: {input_length} tokens, max_new_tokens: {max_tokens}, device: {self.model.device}")
+        
+        # For CPU inference with quantization, reduce token count if needed
+        if not self.hardware["cuda_available"] and max_tokens > 30:
+            logger.info(f"CPU mode: Limiting tokens to 30 for faster generation")
+            max_tokens = 30
+        
         with torch.no_grad():
-            outputs = self.model.generate(
+            # Use simpler generation parameters for better compatibility
+            gen_kwargs = {
                 **inputs,
-                max_new_tokens=max_tokens,
-                temperature=temperature,
-                do_sample=True,
-                pad_token_id=self.tokenizer.eos_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
-                use_cache=False  # Disable cache to avoid DynamicCache compatibility issues
-            )
+                "max_new_tokens": max_tokens,
+                "pad_token_id": self.tokenizer.eos_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
+            }
+            
+            # Try to use static cache for better performance while avoiding DynamicCache issues
+            try:
+                from transformers import StaticCache
+                # Create a static cache to avoid DynamicCache compatibility issues
+                # but still get performance benefits
+                past_key_values = StaticCache(
+                    config=self.model.config,
+                    max_batch_size=1,
+                    max_cache_len=input_length + max_tokens,
+                    device=self.model.device,
+                    dtype=self.model.dtype
+                )
+                gen_kwargs["past_key_values"] = past_key_values
+                gen_kwargs["use_cache"] = True
+                logger.info("Using StaticCache for better performance")
+            except (ImportError, Exception) as e:
+                # Fallback to no cache if StaticCache not available
+                gen_kwargs["use_cache"] = False
+                logger.warning(f"StaticCache not available, using no cache: {e}")
+            
+            # Only add sampling if temperature > 0
+            if temperature > 0:
+                gen_kwargs["do_sample"] = True
+                gen_kwargs["temperature"] = temperature
+                gen_kwargs["top_p"] = 0.9
+            else:
+                gen_kwargs["do_sample"] = False
+            
+            logger.info("Starting generation...")
+            outputs = self.model.generate(**gen_kwargs)
+            logger.info("Generation complete")
         
         # Decode only the generated tokens (skip the input prompt)
         generated_tokens = outputs[0][input_length:]
+        logger.info(f"Generated {len(generated_tokens)} tokens")
+        
         response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        logger.info(f"Decoded response length: {len(response)} chars")
+        
         return response.strip()
     
     async def _generate_transformers_stream(self, prompt: str, max_tokens: int, temperature: float):
