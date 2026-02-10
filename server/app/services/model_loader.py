@@ -144,24 +144,39 @@ class ModelLoader:
             
             # Check if model is local GGUF file or HF repo
             model_path = None
-            if settings.MODEL_PATH.exists():
-                if settings.MODEL_PATH.is_file() and str(settings.MODEL_PATH).endswith('.gguf'):
-                    model_path = str(settings.MODEL_PATH)
-                elif settings.MODEL_PATH.is_dir():
+            
+            # Use absolute path
+            abs_model_path = settings.MODEL_PATH.resolve()
+            logger.info(f"Looking for GGUF model in: {abs_model_path}")
+            logger.info(f"Path exists: {abs_model_path.exists()}")
+            logger.info(f"Is directory: {abs_model_path.is_dir() if abs_model_path.exists() else 'N/A'}")
+            
+            if abs_model_path.exists():
+                if abs_model_path.is_file() and str(abs_model_path).endswith('.gguf'):
+                    model_path = str(abs_model_path)
+                    logger.info(f"Found GGUF file: {model_path}")
+                elif abs_model_path.is_dir():
                     # Look for GGUF file in directory
-                    gguf_files = list(settings.MODEL_PATH.glob("*.gguf"))
+                    gguf_files = list(abs_model_path.glob("*.gguf"))
+                    logger.info(f"Found {len(gguf_files)} GGUF files in directory")
                     if gguf_files:
+                        for f in gguf_files:
+                            logger.info(f"  - {f.name} ({f.stat().st_size / 1e9:.2f} GB)")
                         model_path = str(gguf_files[0])
+                        logger.info(f"Using GGUF file: {model_path}")
+            else:
+                logger.error(f"Path does not exist: {abs_model_path}")
             
             if not model_path:
-                # Download from HuggingFace
-                model_path = self._download_gguf_model()
+                logger.error(f"No GGUF file found in {abs_model_path}")
+                raise FileNotFoundError(f"Could not find GGUF file in {abs_model_path}")
             
             # Configure based on hardware
             n_gpu_layers = 0
             if self.hardware["cuda_available"]:
                 n_gpu_layers = -1  # Offload all layers to GPU
             
+            logger.info(f"Loading GGUF model from: {model_path}")
             self.model = Llama(
                 model_path=model_path,
                 n_ctx=settings.MAX_TOKENS,
@@ -170,7 +185,7 @@ class ModelLoader:
                 verbose=False
             )
             
-            logger.info(f"GGUF model loaded from {model_path}")
+            logger.info(f"GGUF model loaded successfully from {model_path}")
             
         except ImportError:
             raise ImportError("llama-cpp-python not installed. Install with: pip install llama-cpp-python")
