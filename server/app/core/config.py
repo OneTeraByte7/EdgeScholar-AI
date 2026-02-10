@@ -38,12 +38,15 @@ class Settings(BaseSettings):
     # Model Configuration - Supports multiple model types
     # Phi-3-mini: 3.8B params, ~8GB (4GB with 4-bit), GPT-3.5 quality
     MODEL_NAME: str = "microsoft/Phi-3-mini-4k-instruct"
-    MODEL_TYPE: str = "auto"  # auto, airllm, gguf, transformers
-    MODEL_PATH: Path = PROJECT_ROOT / "server" / "app" / "models" / "downloaded"
+    MODEL_TYPE: str = "gguf"  # Using GGUF for fast CPU inference
+    MODEL_PATH: Path = PROJECT_ROOT / "server" / "app" / "models" / "downloaded"  # Absolute path
     CACHE_DIR: Path = PROJECT_ROOT / "server" / "app" / "models" / "cache"
     MAX_TOKENS: int = 4096
     TEMPERATURE: float = 0.7
-    QUANTIZATION: str = "auto"  # none, 4bit, 8bit, auto
+    QUANTIZATION: str = "4bit"  # GGUF handles this internally
+    
+    # Set to True to skip model loading on startup (for testing)
+    SKIP_MODEL_LOAD: bool = False
     
     USE_GPU: bool = False
     GPU_DEVICE: int = 0
