@@ -22,14 +22,14 @@ async def main():
     print("\n1. Hardware Detection:")
     print("-" * 70)
     hardware = HardwareDetector.detect()
-    print(f"   CPU Cores: {hardware['cpu_cores']}")
-    print(f"   Total RAM: {hardware['ram_gb']:.1f} GB")
-    print(f"   Available RAM: {hardware['available_ram_gb']:.1f} GB")
-    print(f"   CUDA Available: {hardware['cuda_available']}")
-    if hardware['cuda_available']:
-        print(f"   GPU Memory: {hardware['gpu_memory_gb']:.1f} GB")
-    print(f"   Recommended Backend: {hardware['recommended_backend']}")
-    print(f"   Recommended Quantization: {hardware['recommended_quantization']}")
+    print(f"   CPU Cores: {hardware.get('cpu_cores', 'Unknown')}")
+    print(f"   Total RAM: {hardware.get('ram_gb', 0):.1f} GB")
+    print(f"   Available RAM: {hardware.get('available_ram_gb', 0):.1f} GB")
+    print(f"   CUDA Available: {hardware.get('cuda_available', False)}")
+    if hardware.get('cuda_available'):
+        print(f"   GPU Memory: {hardware.get('gpu_memory_gb', 0):.1f} GB")
+    print(f"   Recommended Backend: {hardware.get('recommended_backend', 'Unknown')}")
+    print(f"   Recommended Quantization: {hardware.get('recommended_quantization', 'Unknown')}")
     
     # Test model loading
     print("\n2. Loading Model:")
@@ -40,7 +40,10 @@ async def main():
         print(f"   ✅ Model loaded successfully!")
         print(f"   Backend: {config.get('backend', 'Unknown')}")
         print(f"   Quantization: {config.get('quantization', 'Unknown')}")
-        print(f"   Model: {config.get('model_name', 'Unknown')}")
+        model_name = config.get('model_name', 'Unknown')
+        if len(model_name) > 50:
+            model_name = model_name[:50] + "..."
+        print(f"   Model: {model_name}")
     except Exception as e:
         print(f"   ❌ Model loading failed: {e}")
         print("\n   Troubleshooting:")
