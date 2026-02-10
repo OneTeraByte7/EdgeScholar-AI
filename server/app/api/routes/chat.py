@@ -20,18 +20,34 @@ async def chat_query(request: ChatRequest):
         # Step 1: Retrieve relevant context from vector DB
         search_results = vector_db.search(
             query=request.message,
-            n_results=5
+            n_results=3  # Reduced from 5 to fit in context window
         )
         
         # Step 2: Build context from search results
         context_parts = []
         sources = []
         
+        # Estimate tokens: ~4 chars = 1 token
+        # Reserve: 1000 tokens for prompt/instructions, 500 for response
+        max_context_chars = (4096 - 1500) * 4  # ~10,384 characters
+        current_chars = 0
+        
         for i, (doc, metadata) in enumerate(zip(
             search_results["documents"],
             search_results["metadatas"]
         )):
-            context_parts.append(f"[Source {i+1}]: {doc}")
+            # Truncate each document chunk if needed
+            doc_preview = doc[:2000] if len(doc) > 2000 else doc
+            
+            # Check if adding this would exceed limit
+            addition = f"[Source {i+1}]: {doc_preview}\n\n"
+            if current_chars + len(addition) > max_context_chars:
+                logger.warning(f"Context truncated at {i+1} sources to fit token limit")
+                break
+                
+            context_parts.append(f"[Source {i+1}]: {doc_preview}")
+            current_chars += len(addition)
+            
             sources.append({
                 "index": i + 1,
                 "file_name": metadata.get("file_name", "Unknown"),
@@ -42,7 +58,7 @@ async def chat_query(request: ChatRequest):
         context = "\n\n".join(context_parts) if context_parts else "No relevant context found."
         
         # Step 3: Build prompt with context
-        prompt = f"""You are a research assistant helping with academic work. Answer the following question based on the provided research papers.
+        prompt = f"""You are a research assistant. Answer based on the provided research papers.
 
 Research Context:
 {context}
@@ -50,12 +66,14 @@ Research Context:
 Question: {request.message}
 
 Instructions:
-- Provide a clear, well-reasoned answer based on the context
+- Provide a clear answer based on the context
 - Cite sources using [Source N] notation
-- If the context doesn't contain relevant information, say so
 - Be concise but thorough
 
 Answer:"""
+        
+        # Log prompt length for debugging
+        logger.info(f"Prompt length: ~{len(prompt) // 4} tokens (estimated)")
         
         # Step 4: Generate response
         if request.stream:
@@ -63,7 +81,7 @@ Answer:"""
             async def generate_stream():
                 async for chunk in llm_service.generate_stream(
                     prompt=prompt,
-                    max_tokens=request.max_tokens,
+                    max_tokens=min(request.max_tokens, 500),  # Cap response length
                     temperature=request.temperature,
                 ):
                     yield chunk
@@ -76,7 +94,7 @@ Answer:"""
             # Standard response
             response_text = await llm_service.generate(
                 prompt=prompt,
-                max_tokens=request.max_tokens,
+                max_tokens=min(request.max_tokens, 500),  # Cap response length
                 temperature=request.temperature,
             )
             
