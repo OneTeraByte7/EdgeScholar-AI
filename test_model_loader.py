@@ -58,11 +58,49 @@ async def main():
     try:
         prompt = "What is machine learning in one sentence?"
         print(f"   Prompt: {prompt}")
-        print(f"   Response: ", end='', flush=True)
-        response = await llm_service.generate(prompt, max_tokens=50)
-        print(response)
+        print(f"   Generating (may take 30-90 seconds on CPU with 4-bit quantization)...", flush=True)
+        
+        import warnings
+        import sys
+        import io
+        import asyncio
+        
+        # Capture stdout to avoid model warnings
+        old_stdout = sys.stdout
+        sys.stdout = io.StringIO()
+        
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                # Add timeout to avoid hanging forever - use fewer tokens for CPU
+                response = await asyncio.wait_for(
+                    llm_service.generate(prompt, max_tokens=30, temperature=0.7),
+                    timeout=180.0  # 3 minutes timeout
+                )
+        except asyncio.TimeoutError:
+            sys.stdout = old_stdout
+            print(f"   ⚠️  Generation timed out after 3 minutes")
+            print(f"   This might indicate an issue with the model or generation parameters")
+            return
+        finally:
+            # Restore stdout
+            captured_output = sys.stdout.getvalue()
+            sys.stdout = old_stdout
+        
+        print(f"   Response: {response}")
+        print(f"   Length: {len(response)} characters")
+        
+        if not response or len(response.strip()) < 5:
+            print(f"   ⚠️  Warning: Response seems too short or empty")
+            if captured_output:
+                print(f"   Debug - Captured output: {captured_output[:200]}")
+            
     except Exception as e:
-        print(f"\n   ⚠️  Generation failed: {e}")
+        if 'old_stdout' in locals():
+            sys.stdout = old_stdout  # Make sure to restore stdout
+        print(f"   ⚠️  Generation failed: {e}")
+        import traceback
+        traceback.print_exc()
     
     # Test streaming generation
     print("\n4. Streaming Generation Test:")
