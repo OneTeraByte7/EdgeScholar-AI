@@ -9,7 +9,7 @@ torch==2.1.2
 transformers==4.37.2
 sentence-transformers==2.3.1
 chromadb==0.4.22
-numpy<2
+numpy>=1.24.0,<2.0.0  # ChromaDB requires NumPy < 2.0
 optimum[bettertransformer]
 accelerate==0.27.2  # For model loading optimization
 psutil>=5.9.0  # Hardware detection
