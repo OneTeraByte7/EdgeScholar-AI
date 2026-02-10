@@ -34,13 +34,17 @@ async def lifespan(app: FastAPI):
     """Manage application lifecycle"""
     logger.info("🚀 Starting PrivateScholar AI...")
     
-    # Load model on startup
-    try:
-        await llm_service.load_model()
-        logger.info("✅ LLM model loaded successfully")
-    except Exception as e:
-        logger.error(f"❌ Failed to load model: {e}")
-        logger.warning("⚠️  Starting without LLM - chat functionality will be limited")
+    # Load model on startup (skip if configured)
+    if getattr(settings, 'SKIP_MODEL_LOAD', False):
+        logger.warning("⚠️  SKIP_MODEL_LOAD=True - Starting without loading model")
+        logger.warning("⚠️  Chat functionality will not work until model is loaded")
+    else:
+        try:
+            await llm_service.load_model()
+            logger.info("✅ LLM model loaded successfully")
+        except Exception as e:
+            logger.error(f"❌ Failed to load model: {e}")
+            logger.warning("⚠️  Starting without LLM - chat functionality will be limited")
     
     yield
     
