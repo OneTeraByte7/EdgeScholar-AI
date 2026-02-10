@@ -130,6 +130,12 @@ class ModelLoader:
                 logger.info("Attempting fallback to transformers backend")
                 await self._load_transformers(quantization)
                 self.backend = "transformers"
+                self.model_config = {
+                    "backend": self.backend,
+                    "quantization": quantization,
+                    "model_name": settings.MODEL_NAME,
+                    "hardware": self.hardware
+                }
             else:
                 raise
     
@@ -139,9 +145,17 @@ class ModelLoader:
             from llama_cpp import Llama
             
             # Check if model is local GGUF file or HF repo
+            model_path = None
             if settings.MODEL_PATH.exists():
-                model_path = str(settings.MODEL_PATH)
-            else:
+                if settings.MODEL_PATH.is_file() and str(settings.MODEL_PATH).endswith('.gguf'):
+                    model_path = str(settings.MODEL_PATH)
+                elif settings.MODEL_PATH.is_dir():
+                    # Look for GGUF file in directory
+                    gguf_files = list(settings.MODEL_PATH.glob("*.gguf"))
+                    if gguf_files:
+                        model_path = str(gguf_files[0])
+            
+            if not model_path:
                 # Download from HuggingFace
                 model_path = self._download_gguf_model()
             
@@ -200,13 +214,11 @@ class ModelLoader:
             if not self.hardware["cuda_available"]:
                 torch.cuda.is_available = lambda: False
             
-            kwargs = {"model_name_or_path": settings.MODEL_NAME}
-            
-            # Add compression for CPU or limited memory
-            if quantization == "4bit" and not self.hardware["cuda_available"]:
-                kwargs["compression"] = "4bit"
-            
-            self.model = AutoModel.from_pretrained(**kwargs)
+            # AirLLM uses positional argument, not keyword
+            self.model = AutoModel.from_pretrained(
+                settings.MODEL_NAME,
+                compression="4bit" if quantization == "4bit" and not self.hardware["cuda_available"] else None
+            )
             
             logger.info("AirLLM model loaded")
             
@@ -227,7 +239,8 @@ class ModelLoader:
         kwargs = {
             "pretrained_model_name_or_path": settings.MODEL_NAME,
             "trust_remote_code": True,
-            "low_cpu_mem_usage": True
+            "low_cpu_mem_usage": True,
+            "attn_implementation": "eager"  # Use eager attention to avoid flash-attention issues
         }
         
         # Add quantization config
@@ -388,7 +401,8 @@ class ModelLoader:
             max_new_tokens=max_tokens,
             temperature=temperature,
             do_sample=True,
-            pad_token_id=self.model.tokenizer.eos_token_id
+            pad_token_id=self.model.tokenizer.eos_token_id,
+            use_cache=False
         )
         return self.model.tokenizer.decode(outputs[0], skip_special_tokens=True)
     
@@ -407,7 +421,8 @@ class ModelLoader:
                 temperature=temperature,
                 do_sample=True,
                 pad_token_id=self.model.tokenizer.eos_token_id,
-                streamer=streamer
+                streamer=streamer,
+                use_cache=False
             )
             
             # Run generation in thread
@@ -431,16 +446,24 @@ class ModelLoader:
         """Generate with Transformers"""
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
         
+        # Get the number of input tokens to skip them in the output
+        input_length = inputs['input_ids'].shape[1]
+        
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
                 max_new_tokens=max_tokens,
                 temperature=temperature,
                 do_sample=True,
-                pad_token_id=self.tokenizer.eos_token_id
+                pad_token_id=self.tokenizer.eos_token_id,
+                eos_token_id=self.tokenizer.eos_token_id,
+                use_cache=False  # Disable cache to avoid DynamicCache compatibility issues
             )
         
-        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Decode only the generated tokens (skip the input prompt)
+        generated_tokens = outputs[0][input_length:]
+        response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        return response.strip()
     
     async def _generate_transformers_stream(self, prompt: str, max_tokens: int, temperature: float):
         """Stream tokens from Transformers using TextIteratorStreamer"""
@@ -448,7 +471,7 @@ class ModelLoader:
         from threading import Thread
         
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
-        streamer = TextIteratorStreamer(self.tokenizer, skip_special_tokens=True)
+        streamer = TextIteratorStreamer(self.tokenizer, skip_special_tokens=True, skip_prompt=True)
         
         generation_kwargs = dict(
             **inputs,
@@ -456,7 +479,9 @@ class ModelLoader:
             temperature=temperature,
             do_sample=True,
             pad_token_id=self.tokenizer.eos_token_id,
-            streamer=streamer
+            eos_token_id=self.tokenizer.eos_token_id,
+            streamer=streamer,
+            use_cache=False  # Disable cache to avoid DynamicCache compatibility issues
         )
         
         # Run generation in thread
