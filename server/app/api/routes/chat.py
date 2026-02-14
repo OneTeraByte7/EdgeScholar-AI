@@ -52,7 +52,7 @@ async def chat_query(request: ChatRequest):
                 "index": i + 1,
                 "file_name": metadata.get("file_name", "Unknown"),
                 "title": metadata.get("title", "Untitled"),
-                "relevance_score": 1 - search_results["distances"][i]  # Convert distance to similarity
+                "relevance_score": max(0.0, min(1.0, 1 - abs(search_results["distances"][i])))  # Clamp to [0, 1]
             })
         
         context = "\n\n".join(context_parts) if context_parts else "No relevant context found."
@@ -81,7 +81,7 @@ Answer:"""
             async def generate_stream():
                 async for chunk in llm_service.generate_stream(
                     prompt=prompt,
-                    max_tokens=min(request.max_tokens, 500),  # Cap response length
+                    max_tokens=request.max_tokens,  # Use full token limit
                     temperature=request.temperature,
                 ):
                     yield chunk
@@ -94,7 +94,7 @@ Answer:"""
             # Standard response
             response_text = await llm_service.generate(
                 prompt=prompt,
-                max_tokens=min(request.max_tokens, 500),  # Cap response length
+                max_tokens=request.max_tokens,  # Use full token limit
                 temperature=request.temperature,
             )
             
