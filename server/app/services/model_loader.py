@@ -14,6 +14,39 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
+class PromptFormatter:
+    """Format prompts for different model architectures"""
+    
+    @staticmethod
+    def format_prompt(model_name: str, prompt: str) -> str:
+        """Apply model-specific prompt template"""
+        model_lower = model_name.lower()
+        
+        # Phi-3 format
+        if "phi-3" in model_lower or "phi3" in model_lower:
+            return f"<|user|>\n{prompt}<|end|>\n<|assistant|>"
+        
+        # Mistral/Mixtral format
+        elif "mistral" in model_lower or "mixtral" in model_lower:
+            return f"<s>[INST] {prompt} [/INST]"
+        
+        # Llama-3 format
+        elif "llama-3" in model_lower or "llama3" in model_lower:
+            return f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+        
+        # Llama-2 format
+        elif "llama-2" in model_lower or "llama2" in model_lower:
+            return f"<s>[INST] {prompt} [/INST]"
+        
+        # Gemma format
+        elif "gemma" in model_lower:
+            return f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n"
+        
+        # Default: no special formatting
+        else:
+            return prompt
+
+
 class HardwareDetector:
     """Detect hardware capabilities and recommend quantization"""
     
@@ -326,6 +359,11 @@ class ModelLoader:
         max_tokens = max_tokens or settings.MAX_TOKENS
         temperature = temperature or settings.TEMPERATURE
         
+        # Apply model-specific prompt formatting for GGUF models
+        if self.backend == "gguf":
+            prompt = PromptFormatter.format_prompt(settings.MODEL_NAME, prompt)
+            logger.info(f"Applied prompt formatting for {settings.MODEL_NAME}")
+        
         if self.backend == "gguf":
             return await self._generate_gguf(prompt, max_tokens, temperature)
         elif self.backend == "vllm":
@@ -344,6 +382,11 @@ class ModelLoader:
         
         max_tokens = max_tokens or settings.MAX_TOKENS
         temperature = temperature or settings.TEMPERATURE
+        
+        # Apply model-specific prompt formatting for GGUF models
+        if self.backend == "gguf":
+            prompt = PromptFormatter.format_prompt(settings.MODEL_NAME, prompt)
+            logger.info(f"Applied prompt formatting for streaming")
         
         if self.backend == "gguf":
             async for chunk in self._generate_gguf_stream(prompt, max_tokens, temperature):
@@ -364,9 +407,10 @@ class ModelLoader:
             prompt,
             max_tokens=max_tokens,
             temperature=temperature,
-            stop=["</s>", "\n\n"]
+            stop=["</s>", "<|end|>", "<|endoftext|>"],  # Remove \n\n to avoid premature stopping
+            echo=False  # Don't echo the prompt in response
         )
-        return output["choices"][0]["text"]
+        return output["choices"][0]["text"].strip()
     
     async def _generate_gguf_stream(self, prompt: str, max_tokens: int, temperature: float):
         """Stream tokens from GGUF model"""
@@ -375,11 +419,14 @@ class ModelLoader:
             max_tokens=max_tokens,
             temperature=temperature,
             stream=True,
-            stop=["</s>", "\n\n"]
+            stop=["</s>", "<|end|>", "<|endoftext|>"],  # Remove \n\n to avoid premature stopping
+            echo=False  # Don't echo the prompt in response
         )
         
         for output in stream:
-            yield output["choices"][0]["text"]
+            text = output["choices"][0]["text"]
+            if text:
+                yield text
     
     async def _generate_vllm(self, prompt: str, max_tokens: int, temperature: float) -> str:
         """Generate with vLLM"""
@@ -467,10 +514,10 @@ class ModelLoader:
         
         logger.info(f"Generating with prompt length: {input_length} tokens, max_new_tokens: {max_tokens}, device: {self.model.device}")
         
-        # For CPU inference with quantization, reduce token count if needed
-        if not self.hardware["cuda_available"] and max_tokens > 30:
-            logger.info(f"CPU mode: Limiting tokens to 30 for faster generation")
-            max_tokens = 30
+        # For CPU inference, use reasonable token limit
+        if not self.hardware["cuda_available"] and max_tokens > 512:
+            logger.info(f"CPU mode: Limiting tokens to 512 for reasonable generation")
+            max_tokens = 512
         
         with torch.no_grad():
             # Use simpler generation parameters for better compatibility
