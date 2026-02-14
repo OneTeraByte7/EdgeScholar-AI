@@ -87,6 +87,12 @@ class VectorDBService:
                 where=filter_metadata
             )
             
+            # Log search results for debugging
+            logger.info(f"Search query: '{query[:100]}...'")
+            logger.info(f"Found {len(results['documents'][0]) if results['documents'] else 0} results")
+            if results['distances'] and results['distances'][0]:
+                logger.info(f"Distance range: [{min(results['distances'][0]):.4f}, {max(results['distances'][0]):.4f}]")
+            
             return {
                 "documents": results["documents"][0] if results["documents"] else [],
                 "metadatas": results["metadatas"][0] if results["metadatas"] else [],
