@@ -11,8 +11,11 @@ import {
   Brain,
   X,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Copy,
+  Check
 } from 'lucide-react'
+import { uploadDocument, sendChatMessage } from '../api'
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([])
@@ -20,6 +23,7 @@ const ChatPage = () => {
   const [uploadedFiles, setUploadedFiles] = useState([])
   const [isUploading, setIsUploading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
+  const [copiedId, setCopiedId] = useState(null)
   const messagesEndRef = useRef(null)
   const fileInputRef = useRef(null)
 
@@ -31,20 +35,36 @@ const ChatPage = () => {
     scrollToBottom()
   }, [messages])
 
+  const copyToClipboard = (text, messageId) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(messageId)
+      setTimeout(() => setCopiedId(null), 2000)
+    })
+  }
+
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files)
     setIsUploading(true)
 
-    // Simulate file upload
-    setTimeout(() => {
-      const newFiles = files.map((file) => ({
-        id: Date.now() + Math.random(),
-        name: file.name,
-        size: (file.size / 1024).toFixed(2) + ' KB',
-        type: file.type,
-        uploadedAt: new Date().toISOString()
-      }))
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const response = await uploadDocument(file, (progress) => {
+          console.log(`Upload progress for ${file.name}: ${progress}%`)
+        })
+        
+        return {
+          id: response.doc_id,
+          name: response.file_name,
+          size: (file.size / 1024).toFixed(2) + ' KB',
+          type: file.type,
+          uploadedAt: new Date().toISOString(),
+          pageCount: response.page_count,
+          totalWords: response.total_words,
+          chunksCreated: response.chunks_created
+        }
+      })
 
+      const newFiles = await Promise.all(uploadPromises)
       setUploadedFiles((prev) => [...prev, ...newFiles])
       setIsUploading(false)
 
@@ -58,7 +78,19 @@ const ChatPage = () => {
           timestamp: new Date().toISOString()
         }
       ])
-    }, 1500)
+    } catch (error) {
+      console.error('Upload failed:', error)
+      setIsUploading(false)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          type: 'system',
+          content: `Upload failed: ${error.response?.data?.detail || error.message}`,
+          timestamp: new Date().toISOString()
+        }
+      ])
+    }
   }
 
   const removeFile = (fileId) => {
@@ -85,24 +117,37 @@ const ChatPage = () => {
     }
 
     setMessages((prev) => [...prev, userMessage])
+    const currentInput = input
     setInput('')
     setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await sendChatMessage(currentInput, {
+        temperature: 0.7,
+        maxTokens: 1024,
+        stream: false
+      })
+
       const aiMessage = {
         id: Date.now(),
         type: 'ai',
-        content: `I understand you're asking about: "${input}". ${
-          uploadedFiles.length > 0
-            ? `Based on the ${uploadedFiles.length} document(s) you've uploaded, I can help you analyze and understand the content.`
-            : 'Please upload some documents so I can provide more specific insights.'
-        }`,
+        content: response.response,
+        sources: response.sources || [],
         timestamp: new Date().toISOString()
       }
       setMessages((prev) => [...prev, aiMessage])
       setIsTyping(false)
-    }, 2000)
+    } catch (error) {
+      console.error('Chat failed:', error)
+      const errorMessage = {
+        id: Date.now(),
+        type: 'ai',
+        content: `Sorry, I encountered an error: ${error.response?.data?.detail || error.message}. Please make sure the server is running.`,
+        timestamp: new Date().toISOString()
+      }
+      setMessages((prev) => [...prev, errorMessage])
+      setIsTyping(false)
+    }
   }
 
   const handleKeyPress = (e) => {
@@ -358,28 +403,26 @@ const ChatPage = () => {
                   </motion.div>
 
                   {/* Suggested Questions */}
-                  {uploadedFiles.length > 0 && (
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.6 }}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl w-full pt-4"
-                    >
-                      {suggestedQuestions.map((question, idx) => (
-                        <motion.button
-                          key={idx}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => setInput(question)}
-                          className="p-5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10
-                                   text-left text-sm transition-all group"
-                        >
-                          <MessageSquare className="w-5 h-5 text-accent-green mb-3 group-hover:scale-110 transition-transform" />
-                          <p className="font-medium">{question}</p>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  )}
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl w-full pt-4"
+                  >
+                    {suggestedQuestions.map((question, idx) => (
+                      <motion.button
+                        key={idx}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setInput(question)}
+                        className="p-5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10
+                                 text-left text-sm transition-all group"
+                      >
+                        <MessageSquare className="w-5 h-5 text-accent-green mb-3 group-hover:scale-110 transition-transform" />
+                        <p className="font-medium">{question}</p>
+                      </motion.button>
+                    ))}
+                  </motion.div>
                 </div>
               ) : (
                 <div className="max-w-4xl mx-auto w-full">
@@ -414,8 +457,8 @@ const ChatPage = () => {
                                 ? 'bg-gradient-to-br from-accent-blue to-accent-cyan text-white shadow-lg'
                                 : message.type === 'system'
                                 ? 'bg-neutral-800/50 border border-accent-green/30'
-                                : 'bg-white/5 border border-white/10'
-                            } p-5 rounded-2xl`}
+                                : 'bg-gradient-to-br from-white/[0.07] to-white/[0.03] border border-white/10 backdrop-blur-sm'
+                            } p-6 rounded-2xl`}
                           >
                             {message.type === 'system' && (
                               <div className="flex items-center gap-2 mb-3">
@@ -425,12 +468,81 @@ const ChatPage = () => {
                                 </span>
                               </div>
                             )}
-                            <p className="text-base leading-relaxed">
+                            <p className="text-base leading-relaxed whitespace-pre-wrap text-white/90">
                               {message.content}
                             </p>
-                            <p className="text-xs text-white/40 mt-3">
-                              {new Date(message.timestamp).toLocaleTimeString()}
-                            </p>
+                            {message.sources && message.sources.length > 0 && (
+                              <div className="mt-4 pt-4 border-t border-white/10">
+                                <p className="text-xs font-semibold text-accent-cyan uppercase tracking-wider mb-3 flex items-center gap-2">
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  Sources Referenced
+                                </p>
+                                <div className="space-y-2">
+                                  {message.sources.map((source, idx) => (
+                                    <div 
+                                      key={idx} 
+                                      className="flex items-start gap-3 p-3 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors"
+                                    >
+                                      <div className="flex-shrink-0 w-8 h-8 bg-accent-blue/20 rounded-lg flex items-center justify-center">
+                                        <FileText className="w-4 h-4 text-accent-blue" />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-white/90 truncate mb-1">
+                                          {source.file_name}
+                                        </p>
+                                        {source.title && source.title !== 'Untitled' && (
+                                          <p className="text-xs text-neutral-400 line-clamp-1 mb-1">
+                                            {source.title}
+                                          </p>
+                                        )}
+                                        {source.relevance_score && (
+                                          <div className="flex items-center gap-2">
+                                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                              <div 
+                                                className="h-full bg-gradient-to-r from-accent-green to-accent-cyan rounded-full"
+                                                style={{ width: `${Math.round(source.relevance_score * 100)}%` }}
+                                              />
+                                            </div>
+                                            <span className="text-xs font-semibold text-accent-green">
+                                              {Math.round(source.relevance_score * 100)}%
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
+                              <p className="text-xs text-white/40">
+                                {new Date(message.timestamp).toLocaleTimeString([], { 
+                                  hour: '2-digit', 
+                                  minute: '2-digit' 
+                                })}
+                              </p>
+                              {message.type === 'ai' && (
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => copyToClipboard(message.content, message.id)}
+                                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-white/60 hover:text-white/90 
+                                           bg-white/5 hover:bg-white/10 rounded-lg transition-all"
+                                >
+                                  {copiedId === message.id ? (
+                                    <>
+                                      <Check className="w-3 h-3" />
+                                      <span>Copied!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3 h-3" />
+                                      <span>Copy</span>
+                                    </>
+                                  )}
+                                </motion.button>
+                              )}
+                            </div>
                           </div>
                         </div>
 
@@ -455,7 +567,7 @@ const ChatPage = () => {
                         <Brain className="w-6 h-6 text-white" />
                       </div>
                       <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mb-3">
                           <motion.div
                             animate={{ scale: [1, 1.3, 1] }}
                             transition={{ repeat: Infinity, duration: 0.6 }}
@@ -480,6 +592,9 @@ const ChatPage = () => {
                             className="w-2.5 h-2.5 bg-accent-cyan rounded-full"
                           />
                         </div>
+                        <p className="text-sm text-neutral-400">
+                          Thinking... This may take 1-2 minutes on first run while the model loads.
+                        </p>
                       </div>
                     </motion.div>
                   )}
@@ -501,15 +616,13 @@ const ChatPage = () => {
                       placeholder={
                         uploadedFiles.length > 0
                           ? 'Ask anything about your documents...'
-                          : 'Upload documents first to start chatting...'
+                          : 'Ask me anything or upload documents for context...'
                       }
-                      disabled={uploadedFiles.length === 0}
                       rows="1"
                       className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl
                                text-white text-base placeholder:text-neutral-500 focus:outline-none
                                focus:border-accent-blue/50 focus:bg-white/10 transition-all
-                               resize-none disabled:opacity-50 disabled:cursor-not-allowed
-                               shadow-lg"
+                               resize-none shadow-lg"
                       style={{ minHeight: '56px', maxHeight: '140px' }}
                     />
                   </div>
@@ -517,7 +630,7 @@ const ChatPage = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleSendMessage}
-                    disabled={!input.trim() || uploadedFiles.length === 0}
+                    disabled={!input.trim()}
                     className="px-8 py-4 bg-gradient-to-r from-accent-blue to-accent-green
                              text-white rounded-xl font-medium transition-all
                              hover:shadow-xl hover:shadow-accent-blue/40
