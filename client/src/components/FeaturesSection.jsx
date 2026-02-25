@@ -1,150 +1,162 @@
 import { motion } from 'framer-motion'
-import { BookOpen, FileText, MessageSquare, BarChart3, Cpu, Lock } from 'lucide-react'
+import { BookOpen, FileText, MessageSquare, BarChart3, Cpu, Lock, ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const FeaturesSection = () => {
+  const navigate = useNavigate()
+
   const features = [
     {
       icon: BookOpen,
-      title: 'Track',
-      subtitle: 'Smart Literature Review',
-      description: 'Emissions, energy, and waste across your value chain',
-      gradient: 'from-accent-blue/20 to-accent-cyan/10'
+      title: 'Smart Upload',
+      subtitle: 'Multi-format Support',
+      description: 'Upload PDFs, research papers, and documents. Our AI understands academic content and scientific literature.',
+      gradient: 'from-accent-blue/20 to-accent-cyan/10',
+      image: '/images/documentation.png'
     },
     {
       icon: BarChart3,
-      title: 'Model',
-      subtitle: 'Document Analysis',
-      description: 'Forecast performance and goal alignment',
-      gradient: 'from-accent-green/20 to-accent-blue/10'
+      title: 'Deep Analysis',
+      subtitle: 'Intelligent Insights',
+      description: 'Extract key findings, methodologies, and citations. Get comprehensive summaries and comparisons.',
+      gradient: 'from-accent-green/20 to-accent-blue/10',
+      image: '/images/seo.png'
     },
     {
-      icon: FileText,
-      title: 'Report',
-      subtitle: 'Citation Manager',
-      description: 'Generate ESG disclosures, automate frameworks',
-      gradient: 'from-accent-cyan/20 to-accent-green/10'
+      icon: MessageSquare,
+      title: 'Natural Chat',
+      subtitle: 'Conversational AI',
+      description: 'Ask questions in plain language. Get citation-backed answers that reference specific sections.',
+      gradient: 'from-accent-cyan/20 to-accent-green/10',
+      image: '/images/switch.png'
     },
     {
-      icon: Cpu,
-      title: 'Act',
-      subtitle: 'AMD-Powered AI',
-      description: 'Surface insights and opportunities, next steps',
-      gradient: 'from-accent-green/20 to-accent-cyan/10'
+      icon: Lock,
+      title: '100% Private',
+      subtitle: 'On-Device Processing',
+      description: 'All processing happens locally on your AMD GPU. No data ever leaves your device.',
+      gradient: 'from-accent-green/20 to-accent-cyan/10',
+      image: '/images/stamp.png'
     }
   ]
 
   return (
-    <section className="py-24 px-6 section-gradient" id="features">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-32 px-8 lg:px-16 section-gradient" id="features">
+      <div className="max-w-[1920px] mx-auto">
+        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+          className="text-center mb-24"
         >
-          {/* Left side - Visual */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative"
-          >
-            <div className="glass-panel p-8 rounded-3xl">
-              <div className="mb-6">
-                <div className="text-sm text-accent-cyan mb-2">Energy consumption</div>
-                <div className="text-6xl font-display font-bold gradient-text">
-                  583.7
-                </div>
-                <div className="text-sm text-neutral-400">kWh</div>
-              </div>
+          <h2 className="text-4xl md:text-6xl font-display font-bold mb-6">
+            <span className="gradient-text">Powerful Features</span>
+          </h2>
+          <p className="text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
+            Everything you need for intelligent research assistance, all running privately on your device
+          </p>
+        </motion.div>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 glass-panel rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent-green/20 flex items-center justify-center">
-                      <Lock className="w-5 h-5 text-accent-green" />
-                    </div>
-                    <div>
-                      <div className="font-medium">100% Private</div>
-                      <div className="text-xs text-neutral-400">On-device processing</div>
-                    </div>
-                  </div>
-                  <div className="text-accent-green font-mono text-sm">✓</div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 glass-panel rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent-blue/20 flex items-center justify-center">
-                      <Cpu className="w-5 h-5 text-accent-blue" />
-                    </div>
-                    <div>
-                      <div className="font-medium">AMD ROCm</div>
-                      <div className="text-xs text-neutral-400">GPU acceleration</div>
-                    </div>
-                  </div>
-                  <div className="text-accent-blue font-mono text-sm">Active</div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 glass-panel rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent-cyan/20 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-accent-cyan" />
-                    </div>
-                    <div>
-                      <div className="font-medium">RAG Pipeline</div>
-                      <div className="text-xs text-neutral-400">Citation-backed answers</div>
-                    </div>
-                  </div>
-                  <div className="text-accent-cyan font-mono text-sm">Ready</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating badge */}
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
+          {features.map((feature, index) => (
             <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="absolute -top-6 -right-6 bg-accent-green text-black px-6 py-3 rounded-full font-bold shadow-lg"
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              whileHover={{ scale: 1.02, y: -5 }}
+              className="glass-panel p-10 rounded-2xl cursor-pointer group relative overflow-hidden"
             >
-              70B Model
-            </motion.div>
-          </motion.div>
-
-          {/* Right side - Features */}
-          <div className="space-y-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                className="glass-panel p-6 rounded-2xl cursor-pointer group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${feature.gradient} group-hover:scale-110 transition-transform`}>
-                    <feature.icon className="w-6 h-6 text-white" />
+              {/* Background gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 
+                            group-hover:opacity-100 transition-opacity duration-300`} />
+              
+              <div className="relative z-10">
+                <div className="flex items-start gap-6 mb-6">
+                  <div className={`p-4 rounded-xl bg-gradient-to-br ${feature.gradient} 
+                                group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                    <feature.icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-2xl font-display font-bold">{feature.title}</h3>
-                      <span className="text-sm text-neutral-400">{feature.subtitle}</span>
+                    <h3 className="text-2xl font-display font-bold mb-2">{feature.title}</h3>
+                    <span className="text-sm text-accent-cyan font-medium">{feature.subtitle}</span>
+                  </div>
+                  <img 
+                    src={feature.image} 
+                    alt={feature.title} 
+                    className="w-14 h-14 object-contain opacity-50 group-hover:opacity-100 
+                             transition-opacity duration-300"
+                  />
+                </div>
+                <p className="text-neutral-300 leading-relaxed text-base">
+                  {feature.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Demo Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="glass-panel p-12 rounded-3xl border border-white/20"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <h3 className="text-4xl md:text-5xl font-display font-bold leading-tight">
+                Experience <span className="gradient-text">intelligent research</span>
+              </h3>
+              <p className="text-lg text-neutral-300 leading-relaxed">
+                EdgeScholar AI helps researchers analyze documents, 
+                extract insights, and accelerate their research workflow all 
+                while keeping data completely private on your AMD-powered device.
+              </p>
+              <div className="flex gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/chat')}
+                  className="btn-primary inline-flex items-center gap-2"
+                >
+                  Try it yourself
+                  <ArrowRight className="w-5 h-5" />
+                </motion.button>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="glass-panel p-8 rounded-2xl border border-white/20 shadow-2xl bg-gradient-to-br from-accent-blue/5 to-accent-green/5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    <div className="p-6 bg-white/5 rounded-xl border border-accent-blue/30">
+                      <img src="/images/documentation.png" alt="Upload" className="w-full h-24 object-contain mb-3" />
+                      <p className="text-xs text-center text-neutral-400">Upload Documents</p>
                     </div>
-                    <p className="text-neutral-400">{feature.description}</p>
+                    <div className="p-6 bg-white/5 rounded-xl border border-accent-green/30">
+                      <img src="/images/switch.png" alt="Process" className="w-full h-24 object-contain mb-3" />
+                      <p className="text-xs text-center text-neutral-400">Fast Processing</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="p-6 bg-white/5 rounded-xl border border-accent-cyan/30">
+                      <img src="/images/seo.png" alt="Analyze" className="w-full h-24 object-contain mb-3" />
+                      <p className="text-xs text-center text-neutral-400">Deep Analysis</p>
+                    </div>
+                    <div className="p-6 bg-white/5 rounded-xl border border-accent-green/30">
+                      <img src="/images/stamp.png" alt="Secure" className="w-full h-24 object-contain mb-3" />
+                      <p className="text-xs text-center text-neutral-400">100% Secure</p>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="btn-primary w-full mt-6"
-            >
-              Explore features →
-            </motion.button>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/20 to-accent-green/20 
+                            rounded-2xl blur-3xl -z-10 opacity-50" />
+            </div>
           </div>
         </motion.div>
       </div>
