@@ -139,14 +139,41 @@ This will:
 3. Test generation and streaming
 4. Show you the selected backend
 
-### Start the Server
+### Start the Application
 
+#### Option 1: Quick Start (Recommended)
+
+**Windows:**
+```bash
+start.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+This will start both the backend and frontend in separate terminal windows.
+
+#### Option 2: Manual Start
+
+**Start the Backend:**
 ```bash
 cd server
 uvicorn app.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000`
+
+**Start the Frontend (in a new terminal):**
+```bash
+cd client
+npm install
+npm run dev
+```
+
+The web interface will be available at `http://localhost:3000`
 
 ### Configuration (Optional)
 
@@ -169,6 +196,7 @@ See [Quick Start Guide](QUICKSTART.md) for detailed instructions.
 ## 📚 Documentation
 
 - **[QUICKSTART.md](QUICKSTART.md)**: Get started in 5 minutes
+- **[CLIENT_SERVER_CONNECTION.md](CLIENT_SERVER_CONNECTION.md)**: Frontend-backend integration guide
 - **[UPGRADE_SUMMARY.md](UPGRADE_SUMMARY.md)**: What's new and improved
 - **[MODEL_CONFIGURATION.md](server/MODEL_CONFIGURATION.md)**: Detailed model guide
 - **[test_model_loader.py](test_model_loader.py)**: Hardware test script
