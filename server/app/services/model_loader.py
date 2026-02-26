@@ -520,13 +520,15 @@ class ModelLoader:
         
         logger.info(f"Generating with prompt length: {input_length} tokens, max_new_tokens: {max_tokens}, device: {self.model.device}")
         
-        # For CPU inference, use reasonable token limit
-        if not self.hardware["cuda_available"] and max_tokens > 512:
-            logger.info(f"CPU mode: Limiting tokens to 512 for reasonable generation")
-            max_tokens = 512
+        # For CPU inference, use aggressive limits for <1 min response time
+        if not self.hardware["cuda_available"]:
+            # Limit to 200 tokens on CPU for reasonable speed
+            if max_tokens > 200:
+                logger.info(f"CPU mode: Limiting tokens to 200 for fast generation (<1 min)")
+                max_tokens = 200
         
         with torch.no_grad():
-            # Use simpler generation parameters for better quality
+            # Use simpler generation parameters for better quality and speed
             gen_kwargs = {
                 **inputs,
                 "max_new_tokens": max_tokens,
@@ -534,34 +536,15 @@ class ModelLoader:
                 "eos_token_id": self.tokenizer.eos_token_id,
                 "repetition_penalty": 1.15,  # Prevent repetition
                 "no_repeat_ngram_size": 3,  # Avoid repeating 3-grams
+                "use_cache": False  # Disable cache for simpler/faster generation
             }
             
-            # Try to use static cache for better performance while avoiding DynamicCache issues
-            try:
-                from transformers import StaticCache
-                # Create a static cache to avoid DynamicCache compatibility issues
-                # but still get performance benefits
-                past_key_values = StaticCache(
-                    config=self.model.config,
-                    max_batch_size=1,
-                    max_cache_len=input_length + max_tokens,
-                    device=self.model.device,
-                    dtype=self.model.dtype
-                )
-                gen_kwargs["past_key_values"] = past_key_values
-                gen_kwargs["use_cache"] = True
-                logger.info("Using StaticCache for better performance")
-            except (ImportError, Exception) as e:
-                # Fallback to no cache if StaticCache not available
-                gen_kwargs["use_cache"] = False
-                logger.warning(f"StaticCache not available, using no cache: {e}")
-            
             # Only add sampling if temperature > 0
-            if temperature > 0:
+            if temperature > 0.05:  # Use greedy decoding for very low temps
                 gen_kwargs["do_sample"] = True
                 gen_kwargs["temperature"] = temperature
                 gen_kwargs["top_p"] = 0.9
-                gen_kwargs["top_k"] = 50  # Add top-k sampling
+                gen_kwargs["top_k"] = 40  # Reduced from 50 for faster sampling
             else:
                 gen_kwargs["do_sample"] = False
             
