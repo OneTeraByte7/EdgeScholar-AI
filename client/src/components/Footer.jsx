@@ -29,8 +29,17 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="relative border-t border-white/10 bg-black/50 backdrop-blur-xl">
-      <div className="max-w-[1920px] mx-auto px-8 lg:px-16 py-20">
+    <footer className="relative border-t border-white/10 overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50"
+          style={{ backgroundImage: "url('/images/pexels-pixabay-355887.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/50" />
+      </div>
+
+      <div className="relative z-10 max-w-[1920px] mx-auto px-8 lg:px-16 py-20">
         {/* Main footer content */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-16">
           {/* Brand column */}
