@@ -407,7 +407,10 @@ class ModelLoader:
             prompt,
             max_tokens=max_tokens,
             temperature=temperature,
-            stop=["</s>", "<|end|>", "<|endoftext|>"],  # Remove \n\n to avoid premature stopping
+            top_p=0.9,
+            top_k=40,
+            repeat_penalty=1.15,  # Prevent repetition
+            stop=["</s>", "<|end|>", "<|endoftext|>", "\n\nQuestion:", "\n\nContext:"],
             echo=False  # Don't echo the prompt in response
         )
         return output["choices"][0]["text"].strip()
@@ -418,8 +421,11 @@ class ModelLoader:
             prompt,
             max_tokens=max_tokens,
             temperature=temperature,
+            top_p=0.9,
+            top_k=40,
+            repeat_penalty=1.15,  # Prevent repetition
             stream=True,
-            stop=["</s>", "<|end|>", "<|endoftext|>"],  # Remove \n\n to avoid premature stopping
+            stop=["</s>", "<|end|>", "<|endoftext|>", "\n\nQuestion:", "\n\nContext:"],
             echo=False  # Don't echo the prompt in response
         )
         
@@ -520,12 +526,14 @@ class ModelLoader:
             max_tokens = 512
         
         with torch.no_grad():
-            # Use simpler generation parameters for better compatibility
+            # Use simpler generation parameters for better quality
             gen_kwargs = {
                 **inputs,
                 "max_new_tokens": max_tokens,
                 "pad_token_id": self.tokenizer.eos_token_id,
                 "eos_token_id": self.tokenizer.eos_token_id,
+                "repetition_penalty": 1.15,  # Prevent repetition
+                "no_repeat_ngram_size": 3,  # Avoid repeating 3-grams
             }
             
             # Try to use static cache for better performance while avoiding DynamicCache issues
@@ -553,6 +561,7 @@ class ModelLoader:
                 gen_kwargs["do_sample"] = True
                 gen_kwargs["temperature"] = temperature
                 gen_kwargs["top_p"] = 0.9
+                gen_kwargs["top_k"] = 50  # Add top-k sampling
             else:
                 gen_kwargs["do_sample"] = False
             
