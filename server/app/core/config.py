@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     
     SECRET_KEY: str = "dev-secret-key-change-in-production"
     # Hugging Face token (set via env or server/.env). Keep empty by default.
-    HUGGINGFACE_HUB_TOKEN: str = "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"
+    HUGGINGFACE_HUB_TOKEN: str = ""
     # Keep raw string for env parsing; will convert to list after instantiation
     CORS_ORIGINS_RAW: str = "http://localhost:3000,http://localhost:5173"
     

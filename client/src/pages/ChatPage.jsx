@@ -165,7 +165,7 @@ const ChatPage = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-primary overflow-hidden">
+    <div className="h-screen bg-primary overflow-hidden flex flex-col">
       {/* Background Image */}
       <div className="fixed inset-0 z-0">
         <div 
@@ -186,7 +186,7 @@ const ChatPage = () => {
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 glass-panel border-b border-white/10 backdrop-blur-xl"
+        className="relative z-50 glass-panel border-b border-white/10 backdrop-blur-xl flex-shrink-0"
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5">
           <div className="flex items-center justify-between">
@@ -214,8 +214,8 @@ const ChatPage = () => {
         </div>
       </motion.header>
 
-      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 h-[calc(100vh-120px)] sm:h-[calc(100vh-140px)] lg:h-[calc(100vh-180px)]">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 flex-1 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 h-full">
           {/* Sidebar - File Management */}
           <motion.div
             initial={{ x: -20, opacity: 0 }}
