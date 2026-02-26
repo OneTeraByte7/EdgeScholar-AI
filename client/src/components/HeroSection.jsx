@@ -40,7 +40,7 @@ const HeroSection = () => {
                 className="text-base sm:text-lg md:text-xl lg:text-2xl text-neutral-200 max-w-2xl font-light leading-relaxed"
               >
                 Chat with your research papers, extract insights, and accelerate
-                your work—all processed locally on your device with zero data
+                your work all processed locally on your device with zero data
                 sent to the cloud.
               </motion.p>
             </motion.div>
