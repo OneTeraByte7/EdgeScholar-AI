@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-primary text-white font-body antialiased;
     background: linear-gradient(135deg, #0A0A0A 0%, #000000 100%);
