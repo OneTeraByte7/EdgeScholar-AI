@@ -214,7 +214,7 @@ const ChatPage = () => {
         </div>
       </motion.header>
 
-      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 flex-1 overflow-hidden">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 flex-1 min-h-0">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 h-full">
           {/* Sidebar - File Management */}
           <motion.div
@@ -268,7 +268,7 @@ const ChatPage = () => {
 
               {/* Uploaded Files List */}
               {uploadedFiles.length > 0 && (
-                <div className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto scrollbar-hide min-h-0">
+                <div className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto min-h-0 custom-scrollbar" style={{ maxHeight: '100%' }}>
                   <h4 className="text-sm sm:text-base font-semibold text-white flex items-center justify-between">
                     <span>Active Documents</span>
                     <span className="text-xs sm:text-sm font-normal text-neutral-400">
@@ -342,10 +342,11 @@ const ChatPage = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="lg:col-span-4 glass-panel flex flex-col h-full"
+            className="lg:col-span-4 glass-panel flex flex-col h-full overflow-hidden"
           >
             {/* Messages - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-10 space-y-4 sm:space-y-6 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-10 space-y-4 sm:space-y-6 min-h-0 custom-scrollbar"
+                 style={{ maxHeight: '100%' }}>
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-6 sm:space-y-8 lg:space-y-10 max-w-4xl mx-auto px-4">
                   {/* Hero Icon with Image */}
