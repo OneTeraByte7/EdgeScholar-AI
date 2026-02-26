@@ -113,7 +113,7 @@ const FeaturesSection = () => {
                 Experience <span className="gradient-text">intelligent research</span>
               </h3>
               <p className="text-lg text-neutral-300 leading-relaxed">
-                EdgeScholar AI helps researchers analyze documents, 
+                Vigor AI helps researchers analyze documents, 
                 extract insights, and accelerate their research workflow all 
                 while keeping data completely private on your AMD-powered device.
               </p>

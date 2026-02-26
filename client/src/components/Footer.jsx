@@ -42,7 +42,7 @@ const Footer = () => {
             >
               {/* Logo with GitHub Link */}
               <a 
-                href="https://github.com/OneTeraByte7/EdgeScholar-AI.git"
+                href=""
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block mb-6 hover:opacity-80 transition-opacity"
@@ -62,7 +62,7 @@ const Footer = () => {
               {socialLinks.map((social, index) => (
                 <motion.a
                   key={index}
-                  href={social.href}
+                  href="https://github.com/OneTeraByte7/EdgeScholar-AI.git"
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   className="w-12 h-12 rounded-xl glass-panel flex items-center justify-center 
