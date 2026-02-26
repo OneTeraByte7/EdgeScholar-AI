@@ -41,25 +41,25 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <section className="py-32 px-8 lg:px-16 section-gradient" id="features">
-      <div className="max-w-[1920px] mx-auto">
+    <section className="py-16 sm:py-20 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 xl:px-16 section-gradient" id="features">
+      <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-24"
+          className="text-center mb-12 sm:mb-16 lg:mb-20"
         >
-          <h2 className="text-4xl md:text-6xl font-display font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-4 sm:mb-6">
             <span className="gradient-text">Powerful Features</span>
           </h2>
-          <p className="text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed px-4">
             Everything you need for intelligent research assistance, all running privately on your device
           </p>
         </motion.div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-12 sm:mb-16 lg:mb-20">
           {features.map((feature, index) => (
             <motion.div
               key={index}
@@ -68,30 +68,30 @@ const FeaturesSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ scale: 1.02, y: -5 }}
-              className="glass-panel p-10 rounded-2xl cursor-pointer group relative overflow-hidden"
+              className="glass-panel p-6 sm:p-8 lg:p-10 rounded-xl lg:rounded-2xl cursor-pointer group relative overflow-hidden"
             >
               {/* Background gradient */}
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 
                             group-hover:opacity-100 transition-opacity duration-300`} />
               
               <div className="relative z-10">
-                <div className="flex items-start gap-6 mb-6">
-                  <div className={`p-4 rounded-xl bg-gradient-to-br ${feature.gradient} 
+                <div className="flex items-start gap-4 sm:gap-6 mb-4 sm:mb-6">
+                  <div className={`p-3 sm:p-4 rounded-lg lg:rounded-xl bg-gradient-to-br ${feature.gradient} 
                                 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    <feature.icon className="w-8 h-8 text-white" />
+                    <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-2xl font-display font-bold mb-2">{feature.title}</h3>
-                    <span className="text-sm text-accent-cyan font-medium">{feature.subtitle}</span>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-display font-bold mb-1 sm:mb-2">{feature.title}</h3>
+                    <span className="text-xs sm:text-sm text-accent-cyan font-medium">{feature.subtitle}</span>
                   </div>
                   <img 
                     src={feature.image} 
                     alt={feature.title} 
-                    className="w-14 h-14 object-contain opacity-50 group-hover:opacity-100 
+                    className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain opacity-50 group-hover:opacity-100 
                              transition-opacity duration-300"
                   />
                 </div>
-                <p className="text-neutral-300 leading-relaxed text-base">
+                <p className="text-neutral-300 leading-relaxed text-sm sm:text-base">
                   {feature.description}
                 </p>
               </div>

@@ -21,24 +21,24 @@ const Header = () => {
       transition={{ duration: 0.6 }}
       className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/10"
     >
-      <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
         {/* Logo */}
         <motion.div 
           whileHover={{ scale: 1.05 }}
           onClick={() => navigate('/')}
-          className="text-2xl font-display font-bold cursor-pointer"
+          className="text-xl sm:text-2xl font-display font-bold cursor-pointer"
         >
-          <span className="gradient-text">PrivateScholar</span>
+          <span className="gradient-text">Vigor</span>
         </motion.div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6 lg:gap-8">
           {navItems.map((item) => (
             <motion.a
               key={item.name}
               href={item.href}
               whileHover={{ scale: 1.05 }}
-              className="text-neutral-200 hover:text-accent-cyan transition-colors duration-300"
+              className="text-sm lg:text-base text-neutral-200 hover:text-accent-cyan transition-colors duration-300"
             >
               {item.name}
             </motion.a>
@@ -51,7 +51,7 @@ const Header = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/chat')}
-            className="btn-primary"
+            className="btn-primary text-sm lg:text-base px-4 py-2 lg:px-6 lg:py-3"
           >
             Try Chat
           </motion.button>
@@ -59,10 +59,10 @@ const Header = () => {
 
         {/* Mobile menu button */}
         <button
-          className="md:hidden text-white"
+          className="md:hidden text-white p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
 

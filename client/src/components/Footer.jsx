@@ -41,7 +41,7 @@ const Footer = () => {
               viewport={{ once: true }}
             >
               <h3 className="text-3xl font-display font-bold gradient-text mb-6">
-                EdgeScholar
+                Vigor
               </h3>
               <p className="text-neutral-300 text-base leading-relaxed max-w-sm">
                 Privacy-first research assistant powered by AMD. Your research, your device, your privacy.
@@ -92,7 +92,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-neutral-500 text-sm">
-            © 2025 EdgeScholar AI. All rights reserved.
+            © 2025 Vigor AI. All rights reserved.
           </p>
           
           <div className="flex items-center gap-8 text-sm">

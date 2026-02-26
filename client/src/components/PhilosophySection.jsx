@@ -24,26 +24,26 @@ const PhilosophySection = () => {
   ]
 
   return (
-    <section className="py-40 px-8 lg:px-16 relative overflow-hidden">
+    <section className="py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40 px-4 sm:px-6 lg:px-12 xl:px-16 relative overflow-hidden">
       {/* Background texture */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_0)] bg-[length:40px_40px]" />
       </div>
 
-      <div className="max-w-[1920px] mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-24"
+          className="text-center mb-12 sm:mb-16 lg:mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-display font-bold mb-8 leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-4 sm:mb-6 lg:mb-8 leading-tight px-4">
             Built for researchers,
             <br />
             <span className="gradient-text">by researchers</span>
           </h2>
-          <p className="text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed px-4">
             Our core principles guide everything we build
           </p>
         </motion.div>
