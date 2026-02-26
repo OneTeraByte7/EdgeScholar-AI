@@ -84,7 +84,7 @@ class RAGService:
             doc_preview = self._clean_text(doc_preview)
             
             # Check if adding this would exceed limit
-            addition = f"[Source {len(context_parts)+1}]\n{doc_preview}\n\n"
+            addition = f"\n--- Document {len(context_parts)+1} ---\n{doc_preview}\n"
             if current_chars + len(addition) > max_context_chars:
                 logger.warning(f"Context truncated at {len(context_parts)} sources to fit token limit")
                 break
@@ -136,22 +136,24 @@ Instructions:
 Answer:"""
         else:
             # Normal RAG prompt with context
-            prompt = f"""You are a research assistant helping analyze academic papers.
+            prompt = f"""You are a knowledgeable research assistant analyzing academic documents. Provide clear, natural responses like a human expert would.
 
-Context from Research Documents:
+Context from the uploaded research documents:
 {context}
 
-Question: {query}
+User Question: {query}
 
 Instructions:
-- Answer ONLY based on the provided context above
-- Cite sources using [Source N] notation when referencing information
-- If the context doesn't contain enough information, say so clearly
-- Be concise and direct - aim for 2-4 sentences unless more detail is needed
-- Do NOT make up or infer information not present in the context
-- Structure your answer clearly with proper paragraphs
+- Answer naturally and conversationally, as if explaining to a colleague
+- Base your answer ONLY on the information provided in the context above
+- Write in clear paragraphs with proper flow - do NOT use bullet points or numbered lists
+- Do NOT include any citation markers like [Source 1] or references in your response
+- If the context doesn't fully answer the question, acknowledge what you can't determine
+- Be concise but thorough - provide 3-5 well-structured sentences
+- Use natural transitions between ideas
+- Write as if you're having a conversation, not writing a formal report
 
-Answer:"""
+Response:"""
         
         return prompt
     
@@ -206,6 +208,41 @@ Answer:"""
         
         logger.info(f"Deduplicated sources: {len(sources)} -> {len(deduplicated)}")
         return deduplicated
+    
+    def clean_response_format(self, response: str) -> str:
+        """
+        Clean response to remove citation markers and improve formatting
+        
+        Args:
+            response: Generated response text
+            
+        Returns:
+            Cleaned response text
+        """
+        import re
+        
+        # Remove citation markers like [Source 1], [1], etc.
+        response = re.sub(r'\[Source\s*\d+\]', '', response)
+        response = re.sub(r'\[\d+\]', '', response)
+        response = re.sub(r'\(Source\s*\d+\)', '', response)
+        response = re.sub(r'\(\d+\)', '', response)
+        
+        # Remove reference patterns like "according to source 1"
+        response = re.sub(r'according to source \d+', '', response, flags=re.IGNORECASE)
+        response = re.sub(r'as stated in source \d+', '', response, flags=re.IGNORECASE)
+        response = re.sub(r'source \d+ mentions', '', response, flags=re.IGNORECASE)
+        
+        # Clean up multiple spaces
+        response = re.sub(r'\s+', ' ', response)
+        
+        # Clean up multiple newlines
+        response = re.sub(r'\n\s*\n\s*\n+', '\n\n', response)
+        
+        # Fix spacing around punctuation
+        response = re.sub(r'\s+([.,!?])', r'\1', response)
+        response = re.sub(r'([.,!?])([^\s])', r'\1 \2', response)
+        
+        return response.strip()
     
     def validate_response(self, response: str, sources: List[Dict]) -> Tuple[str, bool]:
         """

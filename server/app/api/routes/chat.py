@@ -76,7 +76,10 @@ async def chat_query(request: ChatRequest):
                 temperature=request.temperature or 0.1,  # Very low temp for fast, factual responses
             )
             
-            # Step 6: Validate response quality
+            # Step 6: Clean response formatting (remove citation markers)
+            response_text = rag_service.clean_response_format(response_text)
+            
+            # Step 7: Validate response quality
             response_text, is_valid = rag_service.validate_response(response_text, sources)
             
             if not is_valid:
