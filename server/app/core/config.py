@@ -5,7 +5,7 @@ from typing import List
 from pathlib import Path
 
 # Ensure caches and model downloads go into the repository workspace instead of C: drive
-# Project root: f:/AMD/EdgeScholarAI
+# Project root: f:/AMD/VigorAI
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CACHE_ROOT = PROJECT_ROOT / ".cache"
 TMP_ROOT = PROJECT_ROOT / "tmp"
@@ -26,7 +26,7 @@ os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS", "1")
 
 class Settings(BaseSettings):
-    APP_NAME: str = "EdgeScholar AI"
+    APP_NAME: str = "Vigor AI"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
     ENVIRONMENT: str = "developnment"
