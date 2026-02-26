@@ -22,8 +22,8 @@ async def chat_query(request: ChatRequest):
         # Step 1: Retrieve relevant context using RAG service
         context, sources = rag_service.retrieve_context(
             query=request.message,
-            n_results=3,
-            min_relevance=0.3  # Filter low-quality matches
+            n_results=3,  # Reduced from 5 for faster processing
+            min_relevance=0.0  # Accept all results due to embedding distance issues
         )
         
         # Step 2: Deduplicate sources
@@ -41,14 +41,15 @@ async def chat_query(request: ChatRequest):
         logger.info(f"Sources: {len(sources)}")
         
         # Step 4: Adjust max_tokens to leave room for prompt
+        # For CPU: Limit to 256 tokens for fast responses (<1 min)
         # Default context length: 4096 tokens
         # Reserve space for prompt + some buffer
         available_tokens = 4096 - prompt_tokens - 100
-        max_response_tokens = min(request.max_tokens or 512, available_tokens)
+        max_response_tokens = min(request.max_tokens or 256, available_tokens, 256)
         
         if max_response_tokens < 100:
             logger.warning(f"Very limited token space: {max_response_tokens}")
-            max_response_tokens = 512  # Use default and hope for the best
+            max_response_tokens = 256  # Use default and hope for the best
         
         logger.info(f"Max response tokens: {max_response_tokens}")
         
@@ -59,7 +60,7 @@ async def chat_query(request: ChatRequest):
                 async for chunk in llm_service.generate_stream(
                     prompt=prompt,
                     max_tokens=max_response_tokens,
-                    temperature=request.temperature or 0.3,  # Lower temp for factual responses
+                    temperature=request.temperature or 0.1,  # Very low temp for fast, factual responses
                 ):
                     yield chunk
 
@@ -72,7 +73,7 @@ async def chat_query(request: ChatRequest):
             response_text = await llm_service.generate(
                 prompt=prompt,
                 max_tokens=max_response_tokens,
-                temperature=request.temperature or 0.3,  # Lower temp for factual responses
+                temperature=request.temperature or 0.1,  # Very low temp for fast, factual responses
             )
             
             # Step 6: Validate response quality
