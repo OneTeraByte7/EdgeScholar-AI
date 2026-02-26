@@ -40,6 +40,15 @@ const Footer = () => {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
+              {/* Logo with GitHub Link */}
+              <a 
+                href="https://github.com/OneTeraByte7/EdgeScholar-AI.git"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mb-6 hover:opacity-80 transition-opacity"
+              >
+                <img src="/images/2.png" alt="Vigor AI" className="h-16 w-auto" />
+              </a>
               <h3 className="text-3xl font-display font-bold gradient-text mb-6">
                 Vigor
               </h3>

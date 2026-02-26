@@ -26,9 +26,10 @@ const Header = () => {
         <motion.div 
           whileHover={{ scale: 1.05 }}
           onClick={() => navigate('/')}
-          className="text-xl sm:text-2xl font-display font-bold cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer"
         >
-          <span className="gradient-text">Vigor</span>
+          <img src="/images/1.png" alt="Vigor AI" className="h-8 sm:h-10 w-auto" />
+          <span className="text-xl sm:text-2xl font-display font-bold gradient-text">Vigor</span>
         </motion.div>
 
         {/* Desktop Navigation */}

@@ -165,9 +165,18 @@ const ChatPage = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-primary noise-overlay">
+    <div className="min-h-screen bg-primary overflow-hidden">
+      {/* Background Image */}
+      <div className="fixed inset-0 z-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
+          style={{ backgroundImage: "url('/images/pexels-pixabay-355887.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/90" />
+      </div>
+
       {/* Animated background */}
-      <div className="fixed inset-0 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none z-[1]">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent-blue/5 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-green/5 rounded-full blur-3xl animate-pulse" />
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-accent-cyan/5 rounded-full blur-3xl animate-pulse" />
@@ -182,9 +191,7 @@ const ChatPage = () => {
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-              <div className="p-2 sm:p-2.5 lg:p-3 bg-gradient-to-br from-accent-blue to-accent-green rounded-lg lg:rounded-xl shadow-lg">
-                <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" />
-              </div>
+              <img src="/images/1.png" alt="Vigor AI" className="h-8 sm:h-10 lg:h-12 w-auto" />
               <div>
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-display font-bold gradient-text">
                   Vigor AI
