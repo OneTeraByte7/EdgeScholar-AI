@@ -2,7 +2,7 @@
 
 ---
 
-# EdgeScholar AI (formerly PrivateScholar AI)
+# Vigor AI
 
 **Your Research. Your Device. Your Privacy. Powered by AMD.**
 
@@ -28,7 +28,7 @@ Researchers need AI assistance but can't use cloud services due to:
 
 ## 💡 Solution
 
-EdgeScholar AI runs GPT-3.5 to GPT-4 class models **100% on your device** using:
+Vigor AI runs GPT-3.5 to GPT-4 class models **100% on your device** using:
 - **Smart Backend Selection**: Automatically chooses Transformers, AirLLM, GGUF, or vLLM
 - **Hardware Auto-Detection**: Optimizes for your specific CPU/GPU/RAM configuration
 - **4-bit Quantization**: Run 7B models in ~4GB RAM
@@ -61,7 +61,7 @@ EdgeScholar AI runs GPT-3.5 to GPT-4 class models **100% on your device** using:
 
 ## 🤖 Model Options
 
-EdgeScholar AI supports multiple model backends with auto-optimization:
+Vigor AI supports multiple model backends with auto-optimization:
 
 ### Recommended Models
 
@@ -122,7 +122,7 @@ See [Model Configuration Guide](server/MODEL_CONFIGURATION.md) for details.
 ```bash
 # Clone repository
 git clone <repo-url>
-cd EdgeScholarAI
+cd VigorAI
 
 # Install dependencies
 cd server
