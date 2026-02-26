@@ -9,9 +9,8 @@ const Header = () => {
 
   const navItems = [
     { name: 'Product', href: '#features' },
-    { name: 'Journal', href: '#blog' },
+    { name: 'AMD Showcase', href: '/amd-showcase' },
     { name: 'About', href: '#about' },
-    { name: 'Careers', href: '#careers' },
   ]
 
   return (

@@ -221,11 +221,11 @@ const ChatPage = () => {
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-1 glass-panel p-4 sm:p-6 lg:p-8 overflow-y-auto scrollbar-hide flex flex-col max-h-[300px] lg:max-h-none"
+            className="lg:col-span-1 glass-panel p-4 sm:p-6 lg:p-8 flex flex-col h-full overflow-hidden"
           >
-            <div className="space-y-4 sm:space-y-6 lg:space-y-8 flex-1 flex flex-col">
+            <div className="space-y-4 sm:space-y-6 lg:space-y-8 flex-1 flex flex-col min-h-0">
               {/* Upload Area */}
-              <div className="space-y-3 sm:space-y-4">
+              <div className="space-y-3 sm:space-y-4 flex-shrink-0">
                 <h3 className="text-base sm:text-lg lg:text-xl font-display font-semibold flex items-center gap-2 sm:gap-3">
                   <Book className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-accent-blue" />
                   Your Library
@@ -268,7 +268,7 @@ const ChatPage = () => {
 
               {/* Uploaded Files List */}
               {uploadedFiles.length > 0 && (
-                <div className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto">
+                <div className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto scrollbar-hide min-h-0">
                   <h4 className="text-sm sm:text-base font-semibold text-white flex items-center justify-between">
                     <span>Active Documents</span>
                     <span className="text-xs sm:text-sm font-normal text-neutral-400">
@@ -316,7 +316,7 @@ const ChatPage = () => {
               )}
 
               {/* Stats */}
-              <div className="mt-auto pt-4 sm:pt-6 border-t border-white/10">
+              <div className="pt-4 sm:pt-6 border-t border-white/10 flex-shrink-0">
                 <div className="p-4 sm:p-5 bg-gradient-to-br from-accent-blue/10 to-accent-green/10 rounded-lg lg:rounded-xl border border-white/10">
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 text-center">
                     <div>
@@ -342,9 +342,9 @@ const ChatPage = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="lg:col-span-4 glass-panel flex flex-col"
+            className="lg:col-span-4 glass-panel flex flex-col h-full"
           >
-            {/* Messages */}
+            {/* Messages - Scrollable */}
             <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-10 space-y-4 sm:space-y-6 scrollbar-hide">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-6 sm:space-y-8 lg:space-y-10 max-w-4xl mx-auto px-4">
@@ -611,8 +611,8 @@ const ChatPage = () => {
               )}
             </div>
 
-            {/* Input Area */}
-            <div className="px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8 border-t border-white/10 bg-black/20">
+            {/* Input Area - Fixed at bottom */}
+            <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8 border-t border-white/10 bg-black/20">
               <div className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-3 lg:gap-4">
                   <div className="flex-1 relative">
