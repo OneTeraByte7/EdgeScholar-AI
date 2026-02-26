@@ -4,7 +4,7 @@ import logging
 import time
 from app.api.models import ChatRequest, ChatResponse
 from app.services.llm_service import llm_service
-from app.services.vector_service import vector_db
+from app.services.rag_service import rag_service
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
@@ -12,77 +12,54 @@ logger = logging.getLogger(__name__)
 
 @router.post("/query", response_model=ChatResponse)
 async def chat_query(request: ChatRequest):
-    """Process a research query with RAG"""
+    """Process a research query with enhanced RAG"""
     
     start_time = time.time()
     
     try:
-        # Step 1: Retrieve relevant context from vector DB
-        search_results = vector_db.search(
+        logger.info(f"Processing query: {request.message[:100]}...")
+        
+        # Step 1: Retrieve relevant context using RAG service
+        context, sources = rag_service.retrieve_context(
             query=request.message,
-            n_results=3  # Reduced from 5 to fit in context window
+            n_results=3,
+            min_relevance=0.3  # Filter low-quality matches
         )
         
-        # Step 2: Build context from search results
-        context_parts = []
-        sources = []
+        # Step 2: Deduplicate sources
+        sources = rag_service.deduplicate_sources(sources)
         
-        # Estimate tokens: ~4 chars = 1 token
-        # Reserve: 1000 tokens for prompt/instructions, 500 for response
-        max_context_chars = (4096 - 1500) * 4  # ~10,384 characters
-        current_chars = 0
-        
-        for i, (doc, metadata) in enumerate(zip(
-            search_results["documents"],
-            search_results["metadatas"]
-        )):
-            # Truncate each document chunk if needed
-            doc_preview = doc[:2000] if len(doc) > 2000 else doc
-            
-            # Check if adding this would exceed limit
-            addition = f"[Source {i+1}]: {doc_preview}\n\n"
-            if current_chars + len(addition) > max_context_chars:
-                logger.warning(f"Context truncated at {i+1} sources to fit token limit")
-                break
-                
-            context_parts.append(f"[Source {i+1}]: {doc_preview}")
-            current_chars += len(addition)
-            
-            sources.append({
-                "index": i + 1,
-                "file_name": metadata.get("file_name", "Unknown"),
-                "title": metadata.get("title", "Untitled"),
-                "relevance_score": max(0.0, min(1.0, 1 - abs(search_results["distances"][i])))  # Clamp to [0, 1]
-            })
-        
-        context = "\n\n".join(context_parts) if context_parts else "No relevant context found."
-        
-        # Step 3: Build prompt with context
-        prompt = f"""You are a research assistant. Answer based on the provided research papers.
-
-Research Context:
-{context}
-
-Question: {request.message}
-
-Instructions:
-- Provide a clear answer based on the context
-- Cite sources using [Source N] notation
-- Be concise but thorough
-
-Answer:"""
+        # Step 3: Build optimized RAG prompt
+        prompt = rag_service.build_rag_prompt(
+            query=request.message,
+            context=context
+        )
         
         # Log prompt length for debugging
-        logger.info(f"Prompt length: ~{len(prompt) // 4} tokens (estimated)")
+        prompt_tokens = len(prompt) // 4
+        logger.info(f"Prompt length: ~{prompt_tokens} tokens")
+        logger.info(f"Sources: {len(sources)}")
         
-        # Step 4: Generate response
+        # Step 4: Adjust max_tokens to leave room for prompt
+        # Default context length: 4096 tokens
+        # Reserve space for prompt + some buffer
+        available_tokens = 4096 - prompt_tokens - 100
+        max_response_tokens = min(request.max_tokens or 512, available_tokens)
+        
+        if max_response_tokens < 100:
+            logger.warning(f"Very limited token space: {max_response_tokens}")
+            max_response_tokens = 512  # Use default and hope for the best
+        
+        logger.info(f"Max response tokens: {max_response_tokens}")
+        
+        # Step 5: Generate response
         if request.stream:
             # Return streaming response
             async def generate_stream():
                 async for chunk in llm_service.generate_stream(
                     prompt=prompt,
-                    max_tokens=request.max_tokens,  # Use full token limit
-                    temperature=request.temperature,
+                    max_tokens=max_response_tokens,
+                    temperature=request.temperature or 0.3,  # Lower temp for factual responses
                 ):
                     yield chunk
 
@@ -94,11 +71,18 @@ Answer:"""
             # Standard response
             response_text = await llm_service.generate(
                 prompt=prompt,
-                max_tokens=request.max_tokens,  # Use full token limit
-                temperature=request.temperature,
+                max_tokens=max_response_tokens,
+                temperature=request.temperature or 0.3,  # Lower temp for factual responses
             )
             
+            # Step 6: Validate response quality
+            response_text, is_valid = rag_service.validate_response(response_text, sources)
+            
+            if not is_valid:
+                logger.warning("Response failed validation")
+            
             processing_time = time.time() - start_time
+            logger.info(f"Query processed in {processing_time:.2f}s")
             
             return ChatResponse(
                 response=response_text,
@@ -107,7 +91,7 @@ Answer:"""
             )
     
     except Exception as e:
-        logger.error(f"Chat query failed: {e}")
+        logger.error(f"Chat query failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
