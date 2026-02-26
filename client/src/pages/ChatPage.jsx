@@ -187,7 +187,7 @@ const ChatPage = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-display font-bold gradient-text">
-                  EdgeScholar AI
+                  Vigor AI
                 </h1>
                 <p className="text-sm text-neutral-400">
                   Intelligent Research Assistant
