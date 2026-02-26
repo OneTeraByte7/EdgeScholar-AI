@@ -17,15 +17,15 @@ class RAGService:
     
     def __init__(self):
         self.vector_db = vector_db
-        # Reduce max context to leave more room for response
-        self.max_context_tokens = 2048  # ~8192 characters
-        self.max_doc_chars = 1500  # Truncate individual docs
+        # Reduce max context significantly for faster responses
+        self.max_context_tokens = 1024  # ~4096 characters (reduced from 2048)
+        self.max_doc_chars = 800  # Truncate individual docs (reduced from 1500)
         
     def retrieve_context(
         self, 
         query: str, 
-        n_results: int = 3,
-        min_relevance: float = 0.3
+        n_results: int = 5,
+        min_relevance: float = 0.0
     ) -> Tuple[str, List[Dict]]:
         """
         Retrieve relevant context from vector DB with quality filtering
