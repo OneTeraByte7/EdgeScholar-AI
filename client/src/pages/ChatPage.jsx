@@ -188,15 +188,15 @@ const ChatPage = () => {
         animate={{ y: 0, opacity: 1 }}
         className="relative z-50 glass-panel border-b border-white/10 backdrop-blur-xl flex-shrink-0"
       >
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5">
+        <div className="w-full px-4 sm:px-6 py-2.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-              <img src="/images/1.png" alt="Vigor AI" className="h-8 sm:h-10 lg:h-12 w-auto" />
+            <div className="flex items-center gap-2.5">
+              <img src="/images/1.png" alt="Vigor AI" className="h-7 w-auto" />
               <div>
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-display font-bold gradient-text">
+                <h1 className="text-base font-display font-bold gradient-text leading-tight">
                   Vigor AI
                 </h1>
-                <p className="text-xs sm:text-sm text-neutral-400 hidden sm:block">
+                <p className="text-[11px] text-neutral-400 hidden sm:block leading-tight">
                   Intelligent Research Assistant
                 </p>
               </div>
@@ -205,7 +205,7 @@ const ChatPage = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.location.href = '/'}
-              className="px-3 py-2 sm:px-4 sm:py-2.5 lg:px-6 lg:py-2.5 text-xs sm:text-sm font-medium text-white/70 hover:text-white 
+              className="px-3 py-1.5 text-xs font-medium text-white/70 hover:text-white 
                        border border-white/10 rounded-lg hover:bg-white/5 transition-all"
             >
               Back to Home
@@ -214,20 +214,20 @@ const ChatPage = () => {
         </div>
       </motion.header>
 
-      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 flex-1 min-h-0">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 h-full">
+      <div className="relative z-10 w-full px-3 sm:px-4 py-3 flex-1 min-h-0">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 h-full">
           {/* Sidebar - File Management */}
           <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-1 glass-panel p-4 sm:p-6 lg:p-8 flex flex-col h-full overflow-hidden"
+            className="lg:col-span-1 glass-panel p-3 sm:p-4 flex flex-col h-full overflow-hidden"
           >
-            <div className="space-y-4 sm:space-y-6 lg:space-y-8 flex-1 flex flex-col min-h-0">
+            <div className="space-y-3 flex-1 flex flex-col min-h-0">
               {/* Upload Area */}
-              <div className="space-y-3 sm:space-y-4 flex-shrink-0">
-                <h3 className="text-base sm:text-lg lg:text-xl font-display font-semibold flex items-center gap-2 sm:gap-3">
-                  <Book className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-accent-blue" />
+              <div className="space-y-2 flex-shrink-0">
+                <h3 className="text-sm font-display font-semibold flex items-center gap-2 text-white">
+                  <Book className="w-4 h-4 text-accent-blue" />
                   Your Library
                 </h3>
 
@@ -236,23 +236,19 @@ const ChatPage = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="w-full p-4 sm:p-6 lg:p-8 border-2 border-dashed border-accent-blue/30 rounded-xl lg:rounded-2xl
+                  className="w-full p-3 border-2 border-dashed border-accent-blue/30 rounded-xl
                            hover:border-accent-blue/60 hover:bg-accent-blue/5 transition-all
-                           flex flex-col items-center gap-2 sm:gap-3 lg:gap-4 group"
+                           flex flex-col items-center gap-2 group"
                 >
-                  <div className="p-2 sm:p-3 lg:p-4 bg-accent-blue/10 rounded-lg lg:rounded-xl group-hover:bg-accent-blue/20 transition-colors">
-                    <Upload className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-accent-blue" />
+                  <div className="p-2 bg-accent-blue/10 rounded-lg group-hover:bg-accent-blue/20 transition-colors">
+                    <Upload className="w-4 h-4 text-accent-blue" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm sm:text-base font-semibold text-white mb-1">
+                    <p className="text-xs font-semibold text-white mb-0.5">
                       {isUploading ? 'Uploading...' : 'Drop files here'}
                     </p>
-                    <p className="text-xs sm:text-sm text-neutral-400">
-                      or click to browse
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 mt-1 sm:mt-2">
-                      PDF, TXT, DOCX supported
-                    </p>
+                    <p className="text-[10px] text-neutral-400">or click to browse</p>
+                    <p className="text-[10px] text-neutral-500 mt-0.5">PDF, TXT, DOCX</p>
                   </div>
                 </motion.button>
 
@@ -268,14 +264,12 @@ const ChatPage = () => {
 
               {/* Uploaded Files List */}
               {uploadedFiles.length > 0 && (
-                <div className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto min-h-0 custom-scrollbar" style={{ maxHeight: '100%' }}>
-                  <h4 className="text-sm sm:text-base font-semibold text-white flex items-center justify-between">
+                <div className="space-y-2 flex-1 overflow-y-auto min-h-0 custom-scrollbar">
+                  <h4 className="text-xs font-semibold text-white flex items-center justify-between">
                     <span>Active Documents</span>
-                    <span className="text-xs sm:text-sm font-normal text-neutral-400">
-                      ({uploadedFiles.length})
-                    </span>
+                    <span className="font-normal text-neutral-400">({uploadedFiles.length})</span>
                   </h4>
-                  <div className="space-y-2 sm:space-y-3">
+                  <div className="space-y-1.5">
                     <AnimatePresence>
                       {uploadedFiles.map((file) => (
                         <motion.div
@@ -283,29 +277,23 @@ const ChatPage = () => {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, x: -20 }}
-                          className="p-3 sm:p-4 bg-white/5 rounded-lg lg:rounded-xl border border-white/10 group
-                                   hover:bg-white/10 transition-all"
+                          className="p-2.5 bg-white/5 rounded-lg border border-white/10 group hover:bg-white/10 transition-all"
                         >
-                          <div className="flex items-start gap-2 sm:gap-3">
-                            <div className="p-1.5 sm:p-2 bg-accent-green/10 rounded-lg">
-                              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-accent-green flex-shrink-0" />
+                          <div className="flex items-start gap-2">
+                            <div className="p-1.5 bg-accent-green/10 rounded-md">
+                              <FileText className="w-3.5 h-3.5 text-accent-green flex-shrink-0" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs sm:text-sm font-medium text-white truncate mb-0.5 sm:mb-1">
-                                {file.name}
-                              </p>
-                              <p className="text-[10px] sm:text-xs text-neutral-400">
-                                {file.size}
-                              </p>
+                              <p className="text-xs font-medium text-white truncate">{file.name}</p>
+                              <p className="text-[10px] text-neutral-400">{file.size}</p>
                             </div>
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => removeFile(file.id)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity
-                                       p-1 sm:p-1.5 hover:bg-red-500/20 rounded-lg"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded"
                             >
-                              <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-400 hover:text-red-300" />
+                              <X className="w-3 h-3 text-red-400" />
                             </motion.button>
                           </div>
                         </motion.div>
@@ -316,20 +304,18 @@ const ChatPage = () => {
               )}
 
               {/* Stats */}
-              <div className="pt-4 sm:pt-6 border-t border-white/10 flex-shrink-0">
-                <div className="p-4 sm:p-5 bg-gradient-to-br from-accent-blue/10 to-accent-green/10 rounded-lg lg:rounded-xl border border-white/10">
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 text-center">
+              <div className="pt-3 border-t border-white/10 flex-shrink-0">
+                <div className="p-3 bg-gradient-to-br from-accent-blue/10 to-accent-green/10 rounded-lg border border-white/10">
+                  <div className="grid grid-cols-2 gap-2 text-center">
                     <div>
-                      <p className="text-2xl sm:text-3xl font-bold gradient-text mb-0.5 sm:mb-1">
-                        {uploadedFiles.length}
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-neutral-400">Documents</p>
+                      <p className="text-lg font-bold gradient-text">{uploadedFiles.length}</p>
+                      <p className="text-[10px] text-neutral-400">Documents</p>
                     </div>
                     <div>
-                      <p className="text-2xl sm:text-3xl font-bold gradient-text mb-0.5 sm:mb-1">
+                      <p className="text-lg font-bold gradient-text">
                         {messages.filter((m) => m.type === 'user').length}
                       </p>
-                      <p className="text-[10px] sm:text-xs text-neutral-400">Questions</p>
+                      <p className="text-[10px] text-neutral-400">Questions</p>
                     </div>
                   </div>
                 </div>
@@ -345,23 +331,22 @@ const ChatPage = () => {
             className="lg:col-span-4 glass-panel flex flex-col h-full overflow-hidden"
           >
             {/* Messages - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-10 space-y-4 sm:space-y-6 min-h-0 custom-scrollbar"
-                 style={{ maxHeight: '100%' }}>
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3 min-h-0 custom-scrollbar">
               {messages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center space-y-6 sm:space-y-8 lg:space-y-10 max-w-4xl mx-auto px-4">
-                  {/* Hero Icon with Image */}
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-5 max-w-2xl mx-auto px-4">
+                  {/* Hero Icon */}
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.4 }}
                     className="relative"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/30 to-accent-green/30 rounded-2xl lg:rounded-3xl blur-2xl" />
-                    <div className="relative p-6 sm:p-8 bg-gradient-to-br from-accent-blue/20 to-accent-green/20 rounded-2xl lg:rounded-3xl border border-white/10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/30 to-accent-green/30 rounded-2xl blur-xl" />
+                    <div className="relative p-4 bg-gradient-to-br from-accent-blue/20 to-accent-green/20 rounded-2xl border border-white/10">
                       <img 
                         src="/images/documentation.png" 
                         alt="Documentation" 
-                        className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto object-contain"
+                        className="w-12 h-12 mx-auto object-contain"
                       />
                     </div>
                   </motion.div>
@@ -371,15 +356,13 @@ const ChatPage = () => {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="space-y-3 sm:space-y-4"
+                    className="space-y-2"
                   >
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold gradient-text mb-3 sm:mb-4">
+                    <h2 className="text-xl sm:text-2xl font-display font-bold gradient-text">
                       Start Your Research Journey
                     </h2>
-                    <p className="text-sm sm:text-base lg:text-lg text-neutral-300 max-w-2xl leading-relaxed">
-                      Upload your research papers, documents, or articles and
-                      ask me anything. I'll help you understand complex
-                      concepts and extract insights.
+                    <p className="text-sm text-neutral-400 max-w-md leading-relaxed">
+                      Upload your research papers, documents, or articles and ask me anything.
                     </p>
                   </motion.div>
 
@@ -387,26 +370,26 @@ const ChatPage = () => {
                   <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                    className="grid grid-cols-3 gap-6 w-full max-w-2xl"
+                    transition={{ delay: 0.55 }}
+                    className="grid grid-cols-3 gap-4 w-full max-w-sm"
                   >
-                    <div className="text-center space-y-2">
-                      <div className="w-12 h-12 mx-auto bg-accent-blue/10 rounded-xl flex items-center justify-center">
-                        <img src="/images/switch.png" alt="Fast" className="w-6 h-6 object-contain" />
+                    <div className="text-center space-y-1.5">
+                      <div className="w-9 h-9 mx-auto bg-accent-blue/10 rounded-xl flex items-center justify-center">
+                        <img src="/images/switch.png" alt="Fast" className="w-5 h-5 object-contain" />
                       </div>
-                      <p className="text-sm text-neutral-400">Lightning Fast</p>
+                      <p className="text-xs text-neutral-400">Lightning Fast</p>
                     </div>
-                    <div className="text-center space-y-2">
-                      <div className="w-12 h-12 mx-auto bg-accent-green/10 rounded-xl flex items-center justify-center">
-                        <img src="/images/stamp.png" alt="Private" className="w-6 h-6 object-contain" />
+                    <div className="text-center space-y-1.5">
+                      <div className="w-9 h-9 mx-auto bg-accent-green/10 rounded-xl flex items-center justify-center">
+                        <img src="/images/stamp.png" alt="Private" className="w-5 h-5 object-contain" />
                       </div>
-                      <p className="text-sm text-neutral-400">100% Private</p>
+                      <p className="text-xs text-neutral-400">100% Private</p>
                     </div>
-                    <div className="text-center space-y-2">
-                      <div className="w-12 h-12 mx-auto bg-accent-cyan/10 rounded-xl flex items-center justify-center">
-                        <img src="/images/seo.png" alt="Smart" className="w-6 h-6 object-contain" />
+                    <div className="text-center space-y-1.5">
+                      <div className="w-9 h-9 mx-auto bg-accent-cyan/10 rounded-xl flex items-center justify-center">
+                        <img src="/images/seo.png" alt="Smart" className="w-5 h-5 object-contain" />
                       </div>
-                      <p className="text-sm text-neutral-400">AI Powered</p>
+                      <p className="text-xs text-neutral-400">AI Powered</p>
                     </div>
                   </motion.div>
 
@@ -415,7 +398,7 @@ const ChatPage = () => {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.6 }}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl w-full pt-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-xl"
                   >
                     {suggestedQuestions.map((question, idx) => (
                       <motion.button
@@ -423,17 +406,17 @@ const ChatPage = () => {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setInput(question)}
-                        className="p-5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10
-                                 text-left text-sm transition-all group"
+                        className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10
+                                 text-left text-xs transition-all group"
                       >
-                        <MessageSquare className="w-5 h-5 text-accent-green mb-3 group-hover:scale-110 transition-transform" />
-                        <p className="font-medium">{question}</p>
+                        <MessageSquare className="w-4 h-4 text-accent-green mb-2 group-hover:scale-110 transition-transform" />
+                        <p className="font-medium text-white/80">{question}</p>
                       </motion.button>
                     ))}
                   </motion.div>
                 </div>
               ) : (
-                <div className="max-w-4xl mx-auto w-full">
+                <div className="max-w-3xl mx-auto w-full">
                   <AnimatePresence>
                     {messages.map((message) => (
                       <motion.div
@@ -441,77 +424,71 @@ const ChatPage = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className={`flex gap-4 mb-8 ${
+                        className={`flex gap-3 mb-4 ${
                           message.type === 'user' ? 'justify-end' : ''
                         }`}
                       >
                         {message.type === 'ai' && (
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue to-accent-green 
-                                        flex items-center justify-center flex-shrink-0 shadow-lg">
-                            <Brain className="w-6 h-6 text-white" />
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-green 
+                                        flex items-center justify-center flex-shrink-0 shadow-lg mt-0.5">
+                            <Brain className="w-4 h-4 text-white" />
                           </div>
                         )}
 
-                        <div
-                          className={`${
-                            message.type === 'user'
-                              ? 'max-w-[75%]'
-                              : 'max-w-[85%]'
-                          }`}
-                        >
+                        <div className={`${message.type === 'user' ? 'max-w-[75%]' : 'max-w-[85%]'}`}>
                           <div
                             className={`${
                               message.type === 'user'
                                 ? 'bg-gradient-to-br from-accent-blue to-accent-cyan text-white shadow-lg'
                                 : message.type === 'system'
                                 ? 'bg-neutral-800/50 border border-accent-green/30'
-                                : 'bg-gradient-to-br from-white/[0.07] to-white/[0.03] border border-white/10 backdrop-blur-sm'
-                            } p-6 rounded-2xl`}
+                                : 'bg-white/[0.05] border border-white/10 backdrop-blur-sm'
+                            } px-4 py-3 rounded-2xl`}
                           >
                             {message.type === 'system' && (
-                              <div className="flex items-center gap-2 mb-3">
-                                <CheckCircle className="w-4 h-4 text-accent-green" />
-                                <span className="text-xs font-semibold text-accent-green uppercase tracking-wide">
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <CheckCircle className="w-3.5 h-3.5 text-accent-green" />
+                                <span className="text-[10px] font-semibold text-accent-green uppercase tracking-wide">
                                   System
                                 </span>
                               </div>
                             )}
-                            <p className="text-base leading-relaxed whitespace-pre-wrap text-white/90">
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap text-white/90">
                               {message.content}
                             </p>
                             {message.sources && message.sources.length > 0 && (
-                              <div className="mt-4 pt-4 border-t border-white/10">
-                                <p className="text-xs font-semibold text-accent-cyan uppercase tracking-wider mb-3 flex items-center gap-2">
-                                  <Sparkles className="w-3.5 h-3.5" />
+                              <div className="mt-3 pt-3 border-t border-white/10">
+                                <p className="text-[10px] font-semibold text-accent-cyan uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                  <Sparkles className="w-3 h-3" />
                                   Sources Referenced
                                 </p>
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                   {message.sources.map((source, idx) => (
                                     <div 
                                       key={idx} 
-                                      className="flex items-start gap-3 p-3 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors"
+                                      className="flex items-start gap-2 p-2.5 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors"
                                     >
-                                      <div className="flex-shrink-0 w-8 h-8 bg-accent-blue/20 rounded-lg flex items-center justify-center">
-                                        <FileText className="w-4 h-4 text-accent-blue" />
+                                      <div className="flex-shrink-0 w-6 h-6 bg-accent-blue/20 rounded flex items-center justify-center">
+                                        <FileText className="w-3 h-3 text-accent-blue" />
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-white/90 truncate mb-1">
+                                        <p className="text-xs font-medium text-white/90 truncate">
                                           {source.file_name}
                                         </p>
                                         {source.title && source.title !== 'Untitled' && (
-                                          <p className="text-xs text-neutral-400 line-clamp-1 mb-1">
+                                          <p className="text-[10px] text-neutral-400 line-clamp-1">
                                             {source.title}
                                           </p>
                                         )}
                                         {source.relevance_score && (
-                                          <div className="flex items-center gap-2">
-                                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                          <div className="flex items-center gap-1.5 mt-1">
+                                            <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
                                               <div 
                                                 className="h-full bg-gradient-to-r from-accent-green to-accent-cyan rounded-full"
                                                 style={{ width: `${Math.round(source.relevance_score * 100)}%` }}
                                               />
                                             </div>
-                                            <span className="text-xs font-semibold text-accent-green">
+                                            <span className="text-[10px] font-semibold text-accent-green">
                                               {Math.round(source.relevance_score * 100)}%
                                             </span>
                                           </div>
@@ -522,8 +499,8 @@ const ChatPage = () => {
                                 </div>
                               </div>
                             )}
-                            <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-                              <p className="text-xs text-white/40">
+                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+                              <p className="text-[10px] text-white/30">
                                 {new Date(message.timestamp).toLocaleTimeString([], { 
                                   hour: '2-digit', 
                                   minute: '2-digit' 
@@ -534,19 +511,13 @@ const ChatPage = () => {
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
                                   onClick={() => copyToClipboard(message.content, message.id)}
-                                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-white/60 hover:text-white/90 
-                                           bg-white/5 hover:bg-white/10 rounded-lg transition-all"
+                                  className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-white/50 hover:text-white/80 
+                                           bg-white/5 hover:bg-white/10 rounded transition-all"
                                 >
                                   {copiedId === message.id ? (
-                                    <>
-                                      <Check className="w-3 h-3" />
-                                      <span>Copied!</span>
-                                    </>
+                                    <><Check className="w-2.5 h-2.5" /><span>Copied!</span></>
                                   ) : (
-                                    <>
-                                      <Copy className="w-3 h-3" />
-                                      <span>Copy</span>
-                                    </>
+                                    <><Copy className="w-2.5 h-2.5" /><span>Copy</span></>
                                   )}
                                 </motion.button>
                               )}
@@ -555,9 +526,9 @@ const ChatPage = () => {
                         </div>
 
                         {message.type === 'user' && (
-                          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center 
-                                        flex-shrink-0 border border-white/20">
-                            <MessageSquare className="w-5 h-5 text-white" />
+                          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center 
+                                        flex-shrink-0 border border-white/20 mt-0.5">
+                            <MessageSquare className="w-4 h-4 text-white" />
                           </div>
                         )}
                       </motion.div>
@@ -568,40 +539,32 @@ const ChatPage = () => {
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex gap-4 mb-8"
+                      className="flex gap-3 mb-4"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue to-accent-green 
-                                    flex items-center justify-center shadow-lg">
-                        <Brain className="w-6 h-6 text-white" />
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-green 
+                                    flex items-center justify-center shadow-lg mt-0.5">
+                        <Brain className="w-4 h-4 text-white" />
                       </div>
-                      <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-                        <div className="flex gap-2 mb-3">
+                      <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl">
+                        <div className="flex gap-1.5 mb-2">
                           <motion.div
                             animate={{ scale: [1, 1.3, 1] }}
                             transition={{ repeat: Infinity, duration: 0.6 }}
-                            className="w-2.5 h-2.5 bg-accent-blue rounded-full"
+                            className="w-2 h-2 bg-accent-blue rounded-full"
                           />
                           <motion.div
                             animate={{ scale: [1, 1.3, 1] }}
-                            transition={{
-                              repeat: Infinity,
-                              duration: 0.6,
-                              delay: 0.2
-                            }}
-                            className="w-2.5 h-2.5 bg-accent-green rounded-full"
+                            transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
+                            className="w-2 h-2 bg-accent-green rounded-full"
                           />
                           <motion.div
                             animate={{ scale: [1, 1.3, 1] }}
-                            transition={{
-                              repeat: Infinity,
-                              duration: 0.6,
-                              delay: 0.4
-                            }}
-                            className="w-2.5 h-2.5 bg-accent-cyan rounded-full"
+                            transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }}
+                            className="w-2 h-2 bg-accent-cyan rounded-full"
                           />
                         </div>
-                        <p className="text-sm text-neutral-400">
-                          Thinking... This may take 1-2 minutes on first run while the model loads.
+                        <p className="text-xs text-neutral-400">
+                          Thinking... This may take 1-2 minutes on first run.
                         </p>
                       </div>
                     </motion.div>
@@ -613,9 +576,9 @@ const ChatPage = () => {
             </div>
 
             {/* Input Area - Fixed at bottom */}
-            <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8 border-t border-white/10 bg-black/20">
-              <div className="max-w-4xl mx-auto">
-                <div className="flex gap-2 sm:gap-3 lg:gap-4">
+            <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-t border-white/10 bg-black/20">
+              <div className="max-w-3xl mx-auto">
+                <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <textarea
                       value={input}
@@ -627,11 +590,11 @@ const ChatPage = () => {
                           : 'Ask me anything or upload documents for context...'
                       }
                       rows="1"
-                      className="w-full px-4 sm:px-5 lg:px-6 py-3 sm:py-3.5 lg:py-4 bg-white/5 border border-white/10 rounded-lg lg:rounded-xl
-                               text-white text-sm sm:text-base placeholder:text-neutral-500 focus:outline-none
-                               focus:border-accent-blue/50 focus:bg-white/10 transition-all
-                               resize-none shadow-lg"
-                      style={{ minHeight: '48px', maxHeight: '120px' }}
+                      className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl
+                               text-sm text-white placeholder:text-neutral-500 focus:outline-none
+                               focus:border-accent-blue/50 focus:bg-white/8 transition-all
+                               resize-none"
+                      style={{ minHeight: '42px', maxHeight: '120px' }}
                     />
                   </div>
                   <motion.button
@@ -639,17 +602,17 @@ const ChatPage = () => {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleSendMessage}
                     disabled={!input.trim()}
-                    className="px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 lg:py-4 bg-gradient-to-r from-accent-blue to-accent-green
-                             text-white rounded-lg lg:rounded-xl font-medium transition-all
-                             hover:shadow-xl hover:shadow-accent-blue/40
+                    className="px-4 py-2.5 bg-gradient-to-r from-accent-blue to-accent-green
+                             text-white rounded-xl font-medium transition-all
+                             hover:shadow-lg hover:shadow-accent-blue/30
                              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                             shadow-lg flex items-center justify-center"
+                             flex items-center justify-center"
                   >
-                    <Send className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+                    <Send className="w-4 h-4" />
                   </motion.button>
                 </div>
-                <p className="text-xs text-neutral-500 mt-3 text-center">
-                  Press <kbd className="px-2 py-0.5 bg-white/10 rounded">Enter</kbd> to send • <kbd className="px-2 py-0.5 bg-white/10 rounded">Shift + Enter</kbd> for new line
+                <p className="text-[11px] text-neutral-500 mt-2 text-center">
+                  Press <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-[10px]">Enter</kbd> to send • <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-[10px]">Shift + Enter</kbd> for new line
                 </p>
               </div>
             </div>
