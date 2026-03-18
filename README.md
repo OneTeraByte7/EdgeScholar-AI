@@ -1,6 +1,6 @@
 ## GANAPATI BAPPA MORYA ✨
 
----
+<img width="2752" height="766" alt="Gemini_Generated_Image_1rc66m1rc66m1rc6" src="https://github.com/user-attachments/assets/cef9bb7e-afec-4045-b750-07351e81fd9d" />
 
 # Vigor AI
 
