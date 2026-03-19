@@ -41,19 +41,19 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 xl:px-16 section-gradient" id="features">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-12 section-gradient" id="features">
+      <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12 sm:mb-16 lg:mb-20"
+          className="text-center mb-10 sm:mb-12"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-4 sm:mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold mb-3">
             <span className="gradient-text">Powerful Features</span>
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="text-sm sm:text-base text-neutral-300 max-w-2xl mx-auto leading-relaxed px-4">
             Everything you need for intelligent research assistance, all running privately on your device
           </p>
         </motion.div>
@@ -68,26 +68,26 @@ const FeaturesSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ scale: 1.02, y: -5 }}
-              className="glass-panel p-6 sm:p-8 lg:p-10 rounded-xl lg:rounded-2xl cursor-pointer group relative overflow-hidden"
+              className="glass-panel p-5 sm:p-6 lg:p-7 rounded-xl cursor-pointer group relative overflow-hidden"
             >
               {/* Background gradient */}
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 
                             group-hover:opacity-100 transition-opacity duration-300`} />
-              
+
               <div className="relative z-10">
-                <div className="flex items-start gap-4 sm:gap-6 mb-4 sm:mb-6">
-                  <div className={`p-3 sm:p-4 rounded-lg lg:rounded-xl bg-gradient-to-br ${feature.gradient} 
+                <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+                  <div className={`p-2.5 rounded-lg bg-gradient-to-br ${feature.gradient} 
                                 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
+                    <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-display font-bold mb-1 sm:mb-2">{feature.title}</h3>
+                    <h3 className="text-base sm:text-lg font-display font-bold mb-0.5">{feature.title}</h3>
                     <span className="text-xs sm:text-sm text-accent-cyan font-medium">{feature.subtitle}</span>
                   </div>
-                  <img 
-                    src={feature.image} 
-                    alt={feature.title} 
-                    className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain opacity-50 group-hover:opacity-100 
+                  <img
+                    src={feature.image}
+                    alt={feature.title}
+                    className="w-8 h-8 sm:w-10 sm:h-10 object-contain opacity-50 group-hover:opacity-100 
                              transition-opacity duration-300"
                   />
                 </div>
@@ -105,50 +105,50 @@ const FeaturesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="glass-panel p-12 rounded-3xl border border-white/20"
+          className="glass-panel p-7 sm:p-8 rounded-2xl border border-white/20"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <h3 className="text-4xl md:text-5xl font-display font-bold leading-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
+            <div className="space-y-4">
+              <h3 className="text-2xl md:text-3xl font-display font-bold leading-tight">
                 Experience <span className="gradient-text">intelligent research</span>
               </h3>
-              <p className="text-lg text-neutral-300 leading-relaxed">
-                Vigor AI helps researchers analyze documents, 
-                extract insights, and accelerate their research workflow all 
+              <p className="text-sm text-neutral-300 leading-relaxed">
+                Vigor AI helps researchers analyze documents,
+                extract insights, and accelerate their research workflow all
                 while keeping data completely private on your AMD-powered device.
               </p>
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate('/chat')}
-                  className="btn-primary inline-flex items-center gap-2"
+                  className="btn-primary inline-flex items-center gap-2 text-sm"
                 >
                   Try it yourself
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4" />
                 </motion.button>
               </div>
             </div>
             <div className="relative">
-              <div className="glass-panel p-8 rounded-2xl border border-white/20 shadow-2xl bg-gradient-to-br from-accent-blue/5 to-accent-green/5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-4">
-                    <div className="p-6 bg-white/5 rounded-xl border border-accent-blue/30">
-                      <img src="/images/documentation.png" alt="Upload" className="w-full h-24 object-contain mb-3" />
+              <div className="glass-panel p-5 rounded-2xl border border-white/20 shadow-2xl bg-gradient-to-br from-accent-blue/5 to-accent-green/5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-3">
+                    <div className="p-4 bg-white/5 rounded-xl border border-accent-blue/30">
+                      <img src="/images/documentation.png" alt="Upload" className="w-full h-16 object-contain mb-2" />
                       <p className="text-xs text-center text-neutral-400">Upload Documents</p>
                     </div>
-                    <div className="p-6 bg-white/5 rounded-xl border border-accent-green/30">
-                      <img src="/images/switch.png" alt="Process" className="w-full h-24 object-contain mb-3" />
+                    <div className="p-4 bg-white/5 rounded-xl border border-accent-green/30">
+                      <img src="/images/switch.png" alt="Process" className="w-full h-16 object-contain mb-2" />
                       <p className="text-xs text-center text-neutral-400">Fast Processing</p>
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <div className="p-6 bg-white/5 rounded-xl border border-accent-cyan/30">
-                      <img src="/images/seo.png" alt="Analyze" className="w-full h-24 object-contain mb-3" />
+                  <div className="space-y-3">
+                    <div className="p-4 bg-white/5 rounded-xl border border-accent-cyan/30">
+                      <img src="/images/seo.png" alt="Analyze" className="w-full h-16 object-contain mb-2" />
                       <p className="text-xs text-center text-neutral-400">Deep Analysis</p>
                     </div>
-                    <div className="p-6 bg-white/5 rounded-xl border border-accent-green/30">
-                      <img src="/images/stamp.png" alt="Secure" className="w-full h-24 object-contain mb-3" />
+                    <div className="p-4 bg-white/5 rounded-xl border border-accent-green/30">
+                      <img src="/images/stamp.png" alt="Secure" className="w-full h-16 object-contain mb-2" />
                       <p className="text-xs text-center text-neutral-400">100% Secure</p>
                     </div>
                   </div>
