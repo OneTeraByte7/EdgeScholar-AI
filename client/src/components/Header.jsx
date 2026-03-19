@@ -14,21 +14,21 @@ const Header = () => {
   ]
 
   return (
-    <motion.header 
+    <motion.header
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6 }}
       className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/10"
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between">
         {/* Logo */}
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.05 }}
           onClick={() => navigate('/')}
           className="flex items-center gap-2 cursor-pointer"
         >
-          <img src="/images/1.png" alt="Vigor AI" className="h-8 sm:h-10 w-auto" />
-          <span className="text-xl sm:text-2xl font-display font-bold gradient-text">Vigor</span>
+          <img src="/images/1.png" alt="Vigor AI" className="h-7 sm:h-8 w-auto" />
+          <span className="text-base sm:text-lg font-display font-bold gradient-text">Vigor</span>
         </motion.div>
 
         {/* Desktop Navigation */}
@@ -38,7 +38,7 @@ const Header = () => {
               key={item.name}
               href={item.href}
               whileHover={{ scale: 1.05 }}
-              className="text-sm lg:text-base text-neutral-200 hover:text-accent-cyan transition-colors duration-300"
+              className="text-xs lg:text-sm text-neutral-200 hover:text-accent-cyan transition-colors duration-300"
             >
               {item.name}
             </motion.a>
@@ -51,7 +51,7 @@ const Header = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/chat')}
-            className="btn-primary text-sm lg:text-base px-4 py-2 lg:px-6 lg:py-3"
+            className="btn-primary text-xs lg:text-sm px-4 py-2"
           >
             Try Chat
           </motion.button>
@@ -84,7 +84,7 @@ const Header = () => {
                 {item.name}
               </a>
             ))}
-            <button 
+            <button
               onClick={() => navigate('/chat')}
               className="btn-primary w-full"
             >
