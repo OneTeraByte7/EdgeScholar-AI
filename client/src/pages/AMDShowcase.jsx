@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { 
-  Cpu, 
-  Zap, 
-  Activity, 
-  HardDrive, 
+import {
+  Cpu,
+  Zap,
+  Activity,
+  HardDrive,
   BarChart3,
   TrendingUp,
   FileText,
@@ -31,7 +31,7 @@ const AMDShowcase = () => {
     try {
       const response = await fetch('http://localhost:8000/api/amd/showcase')
       const data = await response.json()
-      
+
       if (data.status === 'success') {
         setHardwareStatus(data.amd_integration)
         setAnalytics(data.research_intelligence)
@@ -55,41 +55,41 @@ const AMDShowcase = () => {
   }
 
   return (
-    <div className="min-h-screen bg-primary py-20">
+    <div className="min-h-screen bg-primary py-12">
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent-blue/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-green/10 rounded-full blur-3xl animate-pulse" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          className="text-center mb-10"
         >
-          <h1 className="text-4xl md:text-5xl font-display font-bold gradient-text mb-4">
+          <h1 className="text-2xl md:text-3xl font-display font-bold gradient-text mb-3">
             AMD AI Showcase
           </h1>
-          <p className="text-xl text-neutral-300 max-w-3xl mx-auto">
+          <p className="text-sm text-neutral-300 max-w-2xl mx-auto">
             Real-time hardware monitoring and advanced research intelligence
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Hardware Status Card */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-panel p-8"
+            className="glass-panel p-5"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-accent-blue/20 rounded-xl">
-                <Cpu className="w-6 h-6 text-accent-blue" />
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-2.5 bg-accent-blue/20 rounded-lg">
+                <Cpu className="w-5 h-5 text-accent-blue" />
               </div>
-              <h2 className="text-2xl font-display font-bold text-white">
+              <h2 className="text-lg font-display font-bold text-white">
                 Hardware Status
               </h2>
             </div>
@@ -127,7 +127,7 @@ const AMDShowcase = () => {
                     </span>
                   </div>
                   <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-accent-blue to-accent-green rounded-full transition-all duration-500"
                       style={{ width: `${hardwareStatus.hardware_detection?.cpu_usage_percent || 0}%` }}
                     />
@@ -140,7 +140,7 @@ const AMDShowcase = () => {
                     </span>
                   </div>
                   <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-accent-green to-accent-cyan rounded-full transition-all duration-500"
                       style={{ width: `${hardwareStatus.hardware_detection?.ram_usage_percent || 0}%` }}
                     />
@@ -158,8 +158,8 @@ const AMDShowcase = () => {
                     <span className="text-sm font-semibold text-white">AMD GPU</span>
                   </div>
                   <p className="text-xs text-neutral-300">
-                    {hardwareStatus.hardware_detection?.amd_gpu_detected 
-                      ? 'Detected and Ready' 
+                    {hardwareStatus.hardware_detection?.amd_gpu_detected
+                      ? 'Detected and Ready'
                       : 'Not Detected (CPU Mode)'}
                   </p>
                 </div>
@@ -175,8 +175,8 @@ const AMDShowcase = () => {
                     <span className="text-sm font-semibold text-white">ROCm</span>
                   </div>
                   <p className="text-xs text-neutral-300">
-                    {hardwareStatus.hardware_detection?.rocm_available 
-                      ? 'Enabled - GPU Acceleration Active' 
+                    {hardwareStatus.hardware_detection?.rocm_available
+                      ? 'Enabled - GPU Acceleration Active'
                       : 'Not Available'}
                   </p>
                 </div>
@@ -189,13 +189,13 @@ const AMDShowcase = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-panel p-8"
+            className="glass-panel p-5"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-accent-green/20 rounded-xl">
-                <Brain className="w-6 h-6 text-accent-green" />
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-2.5 bg-accent-green/20 rounded-lg">
+                <Brain className="w-5 h-5 text-accent-green" />
               </div>
-              <h2 className="text-2xl font-display font-bold text-white">
+              <h2 className="text-lg font-display font-bold text-white">
                 Research Intelligence
               </h2>
             </div>
@@ -227,7 +227,7 @@ const AMDShowcase = () => {
                     Advanced Features
                   </h3>
                   {analytics.features?.map((feature, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="flex items-start gap-3 p-3 bg-white/5 rounded-lg border border-white/10"
                     >
@@ -244,8 +244,8 @@ const AMDShowcase = () => {
                     <span className="text-sm font-semibold text-white">Analytics Engine</span>
                   </div>
                   <p className="text-xs text-neutral-300">
-                    {analytics.analytics_available 
-                      ? '✅ Active - Real-time document intelligence' 
+                    {analytics.analytics_available
+                      ? '✅ Active - Real-time document intelligence'
                       : 'Upload documents to activate'}
                   </p>
                 </div>
@@ -261,17 +261,17 @@ const AMDShowcase = () => {
           transition={{ delay: 0.4 }}
           className="mt-12"
         >
-          <h3 className="text-2xl font-display font-bold text-white mb-6 text-center">
+          <h3 className="text-lg font-display font-bold text-white mb-4 text-center">
             AMD-Powered Advantages
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {hardwareStatus?.amd_showcase?.amd_advantages?.map((advantage, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + index * 0.1 }}
-                className="glass-panel p-6 text-center"
+                className="glass-panel p-4 text-center"
               >
                 <div className="w-12 h-12 bg-gradient-to-br from-accent-blue/20 to-accent-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="w-6 h-6 text-accent-cyan" />
@@ -287,11 +287,11 @@ const AMDShowcase = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mt-12 text-center"
+          className="mt-8 text-center"
         >
           <button
             onClick={() => window.location.href = '/'}
-            className="px-8 py-3 bg-gradient-to-r from-accent-blue to-accent-green text-white rounded-xl font-semibold hover:shadow-xl hover:shadow-accent-blue/40 transition-all"
+            className="px-6 py-2.5 bg-gradient-to-r from-accent-blue to-accent-green text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-accent-blue/40 transition-all"
           >
             Back to Home
           </button>
