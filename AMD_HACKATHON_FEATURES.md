@@ -6,7 +6,7 @@ Two powerful features designed to showcase AMD hardware capabilities and win the
 
 ---
 
-## Feature 1: 🔥 AMD Hardware Optimizer & Real-Time Monitoring
+## Feature 1: 🔥 AMD Hardware Optimizer & Real-Time Monitorings
 
 ### Overview
 Intelligent hardware detection and optimization system that showcases AMD GPU capabilities with real-time performance monitoring.
